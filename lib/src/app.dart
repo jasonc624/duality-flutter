@@ -1,3 +1,4 @@
+import 'package:duality/src/behavior_entry_feature/behavior_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -6,7 +7,6 @@ import 'sample_feature/sample_item_details_view.dart';
 import 'sample_feature/sample_item_list_view.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
-import 'login_page/login_page.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
@@ -73,8 +73,11 @@ class MyApp extends StatelessWidget {
                   case SampleItemDetailsView.routeName:
                     return const SampleItemDetailsView();
                   case SampleItemListView.routeName:
+                    return const SampleItemListView();
+                  case BehaviorListView.routeName:
+                    return const BehaviorListView();
                   default:
-                    return const LoginPage();
+                    return const BehaviorListView();
                 }
               },
             );
