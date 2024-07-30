@@ -6,6 +6,7 @@ import 'create_update_behavior.dart';
 import 'repository_behavior.dart';
 
 class BehaviorListView extends StatelessWidget {
+  BehaviorListView({super.key});
   final BehaviorRepository _repository = BehaviorRepository();
   static const routeName = '/';
 

@@ -3,9 +3,8 @@ import 'behavior_entry_model.dart';
 import 'repository_behavior.dart';
 
 class CreateUpdateBehavior extends StatefulWidget {
-  final BehaviorEntry? behaviorEntry;
-
   const CreateUpdateBehavior({Key? key, this.behaviorEntry}) : super(key: key);
+  final BehaviorEntry? behaviorEntry;
   static const routeName = '/create_update_behavior';
 
   @override
@@ -38,7 +37,18 @@ class _CreateUpdateBehaviorState extends State<CreateUpdateBehavior> {
       if (widget.behaviorEntry == null) {
         // Create new behavior
         final newBehavior = BehaviorEntry(description: description);
-        await _repository.addBehavior(newBehavior);
+        String newId = await _repository.addBehavior(newBehavior);
+
+        // Fetch the complete document
+        BehaviorEntry createdBehavior = await _repository.getBehavior(newId);
+
+        // Now you can see the complete response
+        print('Created Behavior: ${createdBehavior.id}');
+        print('Title: ${createdBehavior.title}');
+        print('Description: ${createdBehavior.description}');
+        print('Trait Scores: ${createdBehavior.traitScores}');
+        print('Created: ${createdBehavior.created}');
+        print('Updated: ${createdBehavior.updated}');
       } else {
         // Update existing behavior
         final updatedBehavior =
@@ -67,7 +77,7 @@ class _CreateUpdateBehaviorState extends State<CreateUpdateBehavior> {
             children: [
               TextFormField(
                 controller: _descriptionController,
-                decoration: InputDecoration(labelText: 'Description'),
+                decoration: const InputDecoration(labelText: 'Description'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a description';
@@ -76,7 +86,7 @@ class _CreateUpdateBehaviorState extends State<CreateUpdateBehavior> {
                 },
                 maxLines: 3,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _submitForm,
                 child: Text(widget.behaviorEntry == null ? 'Create' : 'Update'),

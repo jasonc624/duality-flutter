@@ -7,8 +7,9 @@ class BehaviorRepository {
       FirebaseFirestore.instance.collection('behaviors');
 
   // Create a new behavior entry
-  Future<void> addBehavior(BehaviorEntry entry) async {
-    await _collection.add(entry.toFirestore());
+  Future<String> addBehavior(BehaviorEntry entry) async {
+    DocumentReference docRef = await _collection.add(entry.toFirestore());
+    return docRef.id;
   }
 
   // Read a single behavior entry

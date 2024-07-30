@@ -75,9 +75,9 @@ class MyApp extends StatelessWidget {
                   case SampleItemListView.routeName:
                     return const SampleItemListView();
                   case BehaviorListView.routeName:
-                    return const BehaviorListView();
+                    return BehaviorListView();
                   default:
-                    return const BehaviorListView();
+                    return BehaviorListView();
                 }
               },
             );
