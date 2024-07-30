@@ -1,6 +1,8 @@
 const functions = require('firebase-functions');
 import { FunctionDeclarationSchemaType, GoogleGenerativeAI } from "@google/generative-ai";
 const genAI = new GoogleGenerativeAI("AIzaSyDlP77_zfPOixhygxfqCrcQM5q2LJHckAY");
+
+
 export async function formatBehavior(behavior: any): Promise<[]> {
     functions.logger.log('Behavior to format:', behavior);
     const behaviorText = behavior?.description;
@@ -82,11 +84,17 @@ export async function formatBehavior(behavior: any): Promise<[]> {
             },
         }
     });
-    let prompt = `Based on the inputted behavior please provide a title, 
-    and traitlist associated with the behavior, 
-    for the traitlist the scale is -5 to 5 
-    where a negative number is a bad trait and a positive number is a good trait.
-    The title should be a short description of the behavior.`;
+    let prompt = `Analyze the following behavior: "${behaviorText}"
+
+    1. Provide a concise title that summarizes the behavior.
+    
+    2. Generate a list of personality traits in schema associated with this behavior. For each trait:
+       a) Assign a score between -5 and 5, where:
+          - Negative scores (-5 to -1) indicate negative aspects
+          - Zero (0) indicates a neutral aspect
+          - Positive scores (1 to 5) indicate positive aspects
+       b) Provide a brief explanation for the assigned score.
+    `;
     let result = await model.generateContent(prompt)
     functions.logger.log(result.response.text());
     return JSON.parse(result.response.text());
