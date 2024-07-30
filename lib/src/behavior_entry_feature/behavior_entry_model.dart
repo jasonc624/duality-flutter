@@ -6,27 +6,30 @@ class BehaviorEntry {
     required this.description,
     this.title,
     this.traitScores,
-  });
+    DateTime? created,
+    DateTime? updated,
+  })  : created = created ?? DateTime.now(),
+        updated = updated ?? DateTime.now();
 
   final String? id;
   final String description;
   String? title;
-  Map<String, double>? traitScores;
-  late final DateTime created;
-  late final DateTime updated;
+  Map<String, dynamic>? traitScores;
+  final DateTime created;
+  final DateTime updated;
 
   factory BehaviorEntry.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return BehaviorEntry(
       id: doc.id,
-      description: data['description'],
+      description: data['description'] ?? '',
       title: data['title'],
       traitScores: data['traitScores'] != null
-          ? Map<String, double>.from(data['traitScores'])
+          ? Map<String, dynamic>.from(data['traitScores'])
           : null,
-    )
-      ..created = (data['created'] as Timestamp).toDate()
-      ..updated = (data['updated'] as Timestamp).toDate();
+      created: (data['created'] as Timestamp?)?.toDate(),
+      updated: (data['updated'] as Timestamp?)?.toDate(),
+    );
   }
 
   Map<String, dynamic> toFirestore() {
@@ -34,7 +37,7 @@ class BehaviorEntry {
       'description': description,
       'title': title,
       'traitScores': traitScores,
-      'created': FieldValue.serverTimestamp(),
+      'created': created,
       'updated': FieldValue.serverTimestamp(),
     };
   }
@@ -43,14 +46,27 @@ class BehaviorEntry {
     String? id,
     String? description,
     String? title,
-    Map<String, double>? traitScores,
+    Map<String, dynamic>? traitScores,
+    DateTime? created,
+    DateTime? updated,
   }) {
     return BehaviorEntry(
       id: id ?? this.id,
       description: description ?? this.description,
       title: title ?? this.title,
       traitScores: traitScores ?? this.traitScores,
+      created: created ?? this.created,
+      updated: updated ?? this.updated,
     );
+  }
+
+  // Helper methods to get trait score and reason
+  double? getTraitScore(String trait) {
+    return traitScores?[trait] as double?;
+  }
+
+  String? getTraitReason(String trait) {
+    return traitScores?['${trait}_reason'] as String?;
   }
 }
 // const List<String> traitPairs = [

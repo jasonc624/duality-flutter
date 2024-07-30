@@ -31,29 +31,32 @@ class BehaviorListView extends StatelessWidget {
         stream: _repository.getBehaviors(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No behaviors yet'));
+            print('No ${snapshot.data}');
+            return const Center(child: Text('No behaviors yet'));
           }
 
           return ListView.builder(
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
               final behavior = snapshot.data![index];
-              return ListTile(
-                title: Text(behavior.title ?? 'No title'),
-                subtitle: Text(behavior.description),
-                onTap: () => _editBehavior(context, behavior),
-              );
+              return behavior.title != null && behavior.title!.isNotEmpty
+                  ? ListTile(
+                      title: Text(behavior.title ?? 'No title'),
+                      subtitle: Text(behavior.description),
+                      onTap: () => _editBehavior(context, behavior),
+                    )
+                  : const Center(child: CircularProgressIndicator());
             },
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _createBehavior(context),
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -61,7 +64,7 @@ class BehaviorListView extends StatelessWidget {
   void _createBehavior(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => CreateUpdateBehavior(),
+        builder: (context) => const CreateUpdateBehavior(),
       ),
     );
   }

@@ -21,9 +21,13 @@ class BehaviorRepository {
   // Read all behavior entries
   Stream<List<BehaviorEntry>> getBehaviors() {
     return _collection.snapshots().map((snapshot) {
-      return snapshot.docs
-          .map((doc) => BehaviorEntry.fromFirestore(doc))
-          .toList();
+      List<BehaviorEntry> behaviors =
+          snapshot.docs.map((doc) => BehaviorEntry.fromFirestore(doc)).toList();
+      behaviors.forEach((behavior) {
+        print('Behavior: ${behavior.title}, ${behavior.description}');
+      });
+
+      return behaviors;
     });
   }
 

@@ -16,15 +16,16 @@ export async function updateBehavior(id: string, data: any) {
         console.log('is an array')
         data = data[0];
     }
+    let onlyTraitData = structuredClone(data);
+    delete onlyTraitData.title;
+    delete onlyTraitData.updated;
+    delete onlyTraitData.created;
     // Flatten the data object
     const flattenedData = {
         id,
+        title: data.title,
         updated: Timestamp.now(),
-        ...data
+        traitScores: { ...onlyTraitData },
     };
-
-    // Remove any nested arrays
-    delete flattenedData[0];
-
     await db.collection('behaviors').doc(id).update(flattenedData, { merge: true });
 }

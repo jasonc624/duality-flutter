@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../charts/radar.dart';
 import 'behavior_entry_model.dart';
 import 'repository_behavior.dart';
 
@@ -63,38 +64,49 @@ class _CreateUpdateBehaviorState extends State<CreateUpdateBehavior> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.behaviorEntry == null
-            ? 'Create Behavior'
-            : 'Update Behavior'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
+        appBar: AppBar(
+          title: Text(widget.behaviorEntry == null
+              ? 'New Behavior'
+              : 'Update Behavior'),
+        ),
+        body: SingleChildScrollView(
+            child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(labelText: 'Description'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a description';
-                  }
-                  return null;
-                },
-                maxLines: 3,
+              Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextFormField(
+                      controller: _descriptionController,
+                      decoration:
+                          const InputDecoration(labelText: 'Description'),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a description';
+                        }
+                        return null;
+                      },
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: _submitForm,
+                      child: Text(
+                          widget.behaviorEntry == null ? 'Analyze' : 'Update'),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _submitForm,
-                child: Text(widget.behaviorEntry == null ? 'Create' : 'Update'),
-              ),
+              const SizedBox(height: 30),
+              if (widget.behaviorEntry != null &&
+                  widget.behaviorEntry!.traitScores != null)
+                BehaviorRadarChart(behavior: widget.behaviorEntry!),
             ],
           ),
-        ),
-      ),
-    );
+        )));
   }
 }
