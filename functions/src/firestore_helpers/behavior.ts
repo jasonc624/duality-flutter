@@ -24,6 +24,7 @@ export async function updateBehavior(id: string, data: any) {
     const flattenedData = {
         id,
         title: data.title,
+        mentions: data?.mentions,
         updated: Timestamp.now(),
         traitScores: { ...onlyTraitData },
     };

@@ -8,6 +8,7 @@ class BehaviorEntry {
     this.traitScores,
     DateTime? created,
     DateTime? updated,
+    this.mentions,
   })  : created = created ?? DateTime.now(),
         updated = updated ?? DateTime.now();
 
@@ -15,6 +16,7 @@ class BehaviorEntry {
   final String description;
   String? title;
   Map<String, dynamic>? traitScores;
+  final List<String>? mentions;
   final DateTime created;
   final DateTime updated;
 
@@ -27,6 +29,7 @@ class BehaviorEntry {
       traitScores: data['traitScores'] != null
           ? Map<String, dynamic>.from(data['traitScores'])
           : null,
+      mentions: (data['mentions'] as List<dynamic>?)?.cast<String>() ?? [],
       created: (data['created'] as Timestamp?)?.toDate(),
       updated: (data['updated'] as Timestamp?)?.toDate(),
     );
@@ -36,6 +39,7 @@ class BehaviorEntry {
     return {
       'description': description,
       'title': title,
+      'mentions': mentions,
       'traitScores': traitScores,
       'created': created,
       'updated': FieldValue.serverTimestamp(),
@@ -47,6 +51,7 @@ class BehaviorEntry {
     String? description,
     String? title,
     Map<String, dynamic>? traitScores,
+    dynamic mentions,
     DateTime? created,
     DateTime? updated,
   }) {
@@ -55,6 +60,7 @@ class BehaviorEntry {
       description: description ?? this.description,
       title: title ?? this.title,
       traitScores: traitScores ?? this.traitScores,
+      mentions: mentions ?? this.mentions,
       created: created ?? this.created,
       updated: updated ?? this.updated,
     );

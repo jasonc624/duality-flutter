@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class BehviorItemView extends StatelessWidget {
-  const BehviorItemView({super.key});
+class BehaviorItemView extends StatelessWidget {
+  const BehaviorItemView({super.key});
 
   @override
   Widget build(BuildContext context) {
