@@ -1,32 +1,28 @@
+import 'package:duality/src/behavior_entry_feature/behavior_list.dart';
 import 'package:flutter/material.dart';
 
+import '../behavior_entry_feature/create_update_behavior.dart';
+import '../settings/settings_view.dart';
 import 'timeline/bg_timeline.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Easy Date Timeline',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Easy Date Timeline 😊'),
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
   final String title;
+  static const routeName = '/home';
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  DateTime _selectedDate = DateTime.now();
+
+  void _onDateChanged(DateTime newDate) {
+    setState(() {
+      _selectedDate = newDate;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,14 +30,10 @@ class MyHomePage extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(title),
+        title: Text(widget.title),
       ),
       drawer: Drawer(
-        // Add a ListView to the drawer. This ensures the user can scroll
-        // through the options in the drawer if there isn't enough vertical
-        // space to fit everything.
         child: ListView(
-          // Important: Remove any padding from the ListView.
           padding: EdgeInsets.zero,
           children: [
             const DrawerHeader(
@@ -51,30 +43,45 @@ class MyHomePage extends StatelessWidget {
               child: Text('Drawer Header'),
             ),
             ListTile(
-              title: const Text('Item 1'),
+              title: const Text('Home'),
               onTap: () {
-                // Update the state of the app.
-                // ...
+                Navigator.restorablePushNamed(context, MyHomePage.routeName);
               },
             ),
             ListTile(
-              title: const Text('Item 2'),
+              title: const Text('Settings'),
               onTap: () {
-                // Update the state of the app.
-                // ...
+                Navigator.restorablePushNamed(context, SettingsView.routeName);
               },
             ),
           ],
         ),
       ),
-      body: const SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(height: 32.0),
-            CustomBackgroundExample(),
+            const SizedBox(height: 16.0),
+            CustomBackgroundExample(
+              onDateChanged: _onDateChanged,
+              initialDate: _selectedDate,
+            ),
+            const SizedBox(height: 16.0),
+            BehaviorListView(selectedDate: _selectedDate),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _createBehavior(context),
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  void _createBehavior(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const CreateUpdateBehavior(),
       ),
     );
   }

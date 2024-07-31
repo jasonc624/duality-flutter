@@ -31,6 +31,31 @@ class BehaviorRepository {
     });
   }
 
+  Stream<List<BehaviorEntry>> getBehaviorsByDate(DateTime date) {
+    // Create a DateTime for the start and end of the given date
+    final startOfDay = DateTime(date.year, date.month, date.day);
+    final endOfDay =
+        startOfDay.add(Duration(days: 1)).subtract(Duration(microseconds: 1));
+
+    return _collection
+        .where('created',
+            isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
+        .where('created', isLessThan: Timestamp.fromDate(endOfDay))
+        .snapshots()
+        .map((snapshot) {
+      List<BehaviorEntry> behaviors =
+          snapshot.docs.map((doc) => BehaviorEntry.fromFirestore(doc)).toList();
+
+      // Optional: Keep the debug print if needed
+      behaviors.forEach((behavior) {
+        print(
+            'Behavior: ${behavior.title}, ${behavior.description}, Created: ${behavior.created}');
+      });
+
+      return behaviors;
+    });
+  }
+
   // Update an existing behavior entry
   Future<void> updateBehavior(BehaviorEntry entry) async {
     if (entry.id == null) {

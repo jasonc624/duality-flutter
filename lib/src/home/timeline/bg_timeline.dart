@@ -2,14 +2,21 @@ import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:flutter/material.dart';
 
 class CustomBackgroundExample extends StatelessWidget {
-  const CustomBackgroundExample({super.key});
+  final Function(DateTime) onDateChanged;
+  final DateTime initialDate;
+
+  const CustomBackgroundExample({
+    Key? key,
+    required this.onDateChanged,
+    required this.initialDate,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return EasyDateTimeLine(
-      initialDate: DateTime.now(),
+      initialDate: initialDate,
       onDateChange: (selectedDate) {
-        //`selectedDate` the new date selected.
+        onDateChanged(selectedDate);
       },
       headerProps: const EasyHeaderProps(
         monthPickerType: MonthPickerType.switcher,

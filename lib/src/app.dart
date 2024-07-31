@@ -71,10 +71,8 @@ class MyApp extends StatelessWidget {
                 switch (routeSettings.name) {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
-                  case BehaviorListView.routeName:
-                    return BehaviorListView();
                   default:
-                    return const MyHomePage(title: 'Easy Date Timeline 😊');
+                    return const MyHomePage(title: 'Duality');
                 }
               },
             );
