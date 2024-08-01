@@ -1,20 +1,22 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../charts/radar.dart';
 import 'behavior_entry_model.dart';
+import 'create_update_behavior.dart';
 import 'repository_behavior.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 
-class CreateUpdateBehavior extends StatefulWidget {
-  const CreateUpdateBehavior({Key? key, this.behaviorEntry}) : super(key: key);
+class BehaviorView extends StatefulWidget {
+  const BehaviorView({Key? key, this.behaviorEntry}) : super(key: key);
   final BehaviorEntry? behaviorEntry;
   static const routeName = '/create_update_behavior';
 
   @override
-  _CreateUpdateBehaviorState createState() => _CreateUpdateBehaviorState();
+  _BehaviorViewState createState() => _BehaviorViewState();
 }
 
-class _CreateUpdateBehaviorState extends State<CreateUpdateBehavior> {
+class _BehaviorViewState extends State<BehaviorView> {
   final _formKey = GlobalKey<FormState>();
   final _descriptionController = TextEditingController();
   final _repository = BehaviorRepository();
@@ -64,13 +66,19 @@ class _CreateUpdateBehaviorState extends State<CreateUpdateBehavior> {
     }
   }
 
+  void _editBehavior(BuildContext context, BehaviorEntry behavior) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => CreateUpdateBehavior(behaviorEntry: behavior),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.behaviorEntry == null
-              ? 'New Behavior'
-              : 'Update Behavior'),
+          title: const Text('Behavior'),
         ),
         body: SingleChildScrollView(
             child: Padding(
@@ -78,32 +86,26 @@ class _CreateUpdateBehaviorState extends State<CreateUpdateBehavior> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextFormField(
-                      controller: _descriptionController,
-                      decoration:
-                          const InputDecoration(labelText: 'Description'),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter a description';
-                        }
-                        return null;
-                      },
-                      maxLines: 3,
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: _submitForm,
-                      child: Text(
-                          widget.behaviorEntry == null ? 'Analyze' : 'Update'),
-                    ),
-                  ],
-                ),
-              )
+              Text(widget.behaviorEntry?.title ?? 'Untitled ',
+                  style: const TextStyle(
+                      fontSize: 24, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              Text(widget.behaviorEntry?.description ?? "",
+                  style: const TextStyle(
+                      fontSize: 16, fontStyle: FontStyle.italic)),
+              const SizedBox(height: 30),
+              Column(mainAxisAlignment: MainAxisAlignment.end, children: [
+                TextButton(
+                    onPressed: () =>
+                        _editBehavior(context, widget.behaviorEntry!),
+                    child: Text('Edit'))
+              ]),
+              const SizedBox(height: 30),
+              const Divider(),
+              const SizedBox(height: 30),
+              if (widget.behaviorEntry != null &&
+                  widget.behaviorEntry!.traitScores != null)
+                BehaviorRadarChart(behavior: widget.behaviorEntry!),
             ],
           ),
         )));

@@ -31,7 +31,9 @@ class BehaviorRepository {
     });
   }
 
-  Stream<List<BehaviorEntry>> getBehaviorsByDate(DateTime date) {
+  Stream<List<BehaviorEntry>> getBehaviorsByDate(
+      DateTime date, String? userRef) {
+    print('Get behavior by date, heres users ${userRef.toString()}');
     // Create a DateTime for the start and end of the given date
     final startOfDay = DateTime(date.year, date.month, date.day);
     final endOfDay =
@@ -41,6 +43,7 @@ class BehaviorRepository {
         .where('created',
             isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
         .where('created', isLessThan: Timestamp.fromDate(endOfDay))
+        .where('userRef', isEqualTo: userRef.toString())
         .snapshots()
         .map((snapshot) {
       List<BehaviorEntry> behaviors =

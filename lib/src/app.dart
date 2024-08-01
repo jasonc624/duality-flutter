@@ -1,13 +1,16 @@
-import 'package:duality/src/behavior_entry_feature/behavior_list.dart';
+import 'package:duality/src/login_page/login_page.dart';
+import 'package:duality/src/relationships/relationship_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'sample_feature/sample_item_details_view.dart';
-import 'sample_feature/sample_item_list_view.dart';
+import 'relationships/relationships_list.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
 import 'package:duality/src/home/home.dart';
+
+//FIrebase
+import 'package:firebase_auth/firebase_auth.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
@@ -58,10 +61,23 @@ class MyApp extends StatelessWidget {
           // Define a light and dark color theme. Then, read the user's
           // preferred ThemeMode (light, dark, or system default) from the
           // SettingsController to display the correct theme.
-          theme: ThemeData(),
+          theme: ThemeData(
+            listTileTheme: const ListTileThemeData(textColor: Colors.black),
+          ),
           darkTheme: ThemeData.dark(),
           themeMode: settingsController.themeMode,
-
+          home: StreamBuilder<User?>(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const CircularProgressIndicator();
+              } else if (snapshot.hasData) {
+                return const MyHomePage(title: 'Duality');
+              } else {
+                return const LoginScreen();
+              }
+            },
+          ),
           // Define a function to handle named routes in order to support
           // Flutter web url navigation and deep linking.
           onGenerateRoute: (RouteSettings routeSettings) {
@@ -69,6 +85,8 @@ class MyApp extends StatelessWidget {
               settings: routeSettings,
               builder: (BuildContext context) {
                 switch (routeSettings.name) {
+                  case RelationshipsPage.routeName:
+                    return RelationshipsPage();
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
                   default:

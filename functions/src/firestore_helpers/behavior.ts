@@ -3,8 +3,9 @@ const functions = require("firebase-functions");
 const { getFirestore, Timestamp } = require('firebase-admin/firestore');
 initializeApp();
 
-const db = getFirestore();
 
+const db = getFirestore();
+db.settings({ ignoreUndefinedProperties: true });
 export async function updateBehavior(id: string, data: any) {
     functions.logger.log('updateBehavior Type: ', typeof data);
     functions.logger.log('updateBehavior with ', data);

@@ -1,9 +1,11 @@
 import 'package:duality/src/behavior_entry_feature/behavior_list.dart';
+import 'package:duality/src/relationships/relationships_list.dart';
 import 'package:flutter/material.dart';
 
 import '../behavior_entry_feature/create_update_behavior.dart';
 import '../settings/settings_view.dart';
 import 'timeline/bg_timeline.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -17,11 +19,35 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   DateTime _selectedDate = DateTime.now();
+  User? firebaseUser;
+  String currentUserUid = FirebaseAuth.instance.currentUser!.uid;
+  @override
+  void initState() {
+    super.initState();
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (mounted) {
+        setState(() {
+          firebaseUser = user;
+        });
+      }
+    });
+  }
 
   void _onDateChanged(DateTime newDate) {
     setState(() {
       _selectedDate = newDate;
     });
+  }
+
+  Future<void> logout() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      // Optional: Navigate to login screen or show a success message
+      print('User logged out successfully');
+    } catch (e) {
+      print('Error during logout: $e');
+      // Optional: Show an error message to the user
+    }
   }
 
   @override
@@ -36,11 +62,38 @@ class _MyHomePageState extends State<MyHomePage> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
+            DrawerHeader(
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(0)),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xff3371FF),
+                    Color(0xff8426D6),
+                  ],
+                ),
               ),
-              child: Text('Drawer Header'),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const Text(
+                    'May your best side win today',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  if (firebaseUser != null)
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundColor: Colors.black,
+                      child: _getAvatarContent(firebaseUser as User),
+                    ),
+                ],
+              ),
             ),
             ListTile(
               title: const Text('Home'),
@@ -49,9 +102,39 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
             ListTile(
+              title: const Text('Relationships'),
+              onTap: () {
+                Navigator.restorablePushNamed(
+                    context, RelationshipsPage.routeName);
+              },
+            ),
+            ListTile(
+              title: const Text('Trends'),
+              onTap: () {
+                Navigator.restorablePushNamed(context, MyHomePage.routeName);
+              },
+            ),
+            ListTile(
+              title: const Text('Goals'),
+              onTap: () {
+                Navigator.restorablePushNamed(context, MyHomePage.routeName);
+              },
+            ),
+            ListTile(
               title: const Text('Settings'),
               onTap: () {
                 Navigator.restorablePushNamed(context, SettingsView.routeName);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.exit_to_app),
+              title: const Text('Logout'),
+              onTap: () async {
+                await logout();
+                // Optional: Close the drawer
+                Navigator.of(context).pop();
+                // Optional: Navigate to login screen
+                // Navigator.of(context).pushReplacementNamed('/login');
               },
             ),
           ],
@@ -67,13 +150,46 @@ class _MyHomePageState extends State<MyHomePage> {
               initialDate: _selectedDate,
             ),
             const SizedBox(height: 16.0),
-            BehaviorListView(selectedDate: _selectedDate),
+            BehaviorListView(
+                selectedDate: _selectedDate, userRef: currentUserUid),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _createBehavior(context),
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _getAvatarContent(User user) {
+    if (user.photoURL != null) {
+      return ClipOval(
+        child: Image.network(
+          user.photoURL!,
+          fit: BoxFit.cover,
+          width: 60,
+          height: 60,
+          errorBuilder: (context, error, stackTrace) {
+            return _getInitials(user);
+          },
+        ),
+      );
+    } else {
+      return _getInitials(user);
+    }
+  }
+
+  Widget _getInitials(User? user) {
+    final name = user?.displayName ?? user?.email ?? '';
+    final dynamic initials =
+        name.isNotEmpty ? name.substring(0, 2).toUpperCase() : 'JC';
+    return Text(
+      initials,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 24,
+        fontWeight: FontWeight.bold,
       ),
     );
   }
