@@ -32,6 +32,12 @@ class _LoginScreenState extends State<LoginScreen> {
             email: _emailController.text.trim(),
             password: _passwordController.text.trim(),
           );
+          String newProfileId = FirebaseFirestore.instance
+              .collection('users')
+              .doc(userCredential.user!.uid)
+              .collection('profiles')
+              .doc()
+              .id;
 
           // Update user profile with name
           await userCredential.user
@@ -45,13 +51,8 @@ class _LoginScreenState extends State<LoginScreen> {
             'email': _emailController.text.trim(),
             'name': _nameController.text.trim(),
             'joined': FieldValue.serverTimestamp(),
+            'last_selected_profile': newProfileId,
           });
-          String newProfileId = FirebaseFirestore.instance
-              .collection('users')
-              .doc(userCredential.user!.uid)
-              .collection('profiles')
-              .doc()
-              .id;
           await FirebaseFirestore.instance
               .collection('users')
               .doc(userCredential.user!.uid)
@@ -62,6 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
             'userRef': userCredential.user!.uid,
             'name': 'Default',
             'created': FieldValue.serverTimestamp(),
+            'isDefault': true
           });
         } else {
           // Login existing user

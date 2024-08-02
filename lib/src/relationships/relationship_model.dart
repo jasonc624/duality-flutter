@@ -8,20 +8,23 @@ class Relationship {
   final List<String> profiles;
   final String? notes;
   final Map<String, dynamic>? metadata;
+  final Map<String, dynamic>? current_standing;
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  Relationship({
-    required this.id,
-    required this.name,
-    this.type,
-    this.tags = const [],
-    this.profiles = const [],
-    this.notes,
-    this.metadata,
-    required this.createdAt,
-    required this.updatedAt,
-  });
+  Relationship(
+      {required this.id,
+      required this.name,
+      this.type,
+      this.tags = const [],
+      this.profiles = const [],
+      this.notes,
+      this.metadata,
+      this.current_standing,
+      DateTime? createdAt,
+      DateTime? updatedAt})
+      : createdAt = createdAt ?? DateTime.now(),
+        updatedAt = updatedAt ?? DateTime.now();
 
   // Create a Relationship object from a Firestore document
   factory Relationship.fromFirestore(DocumentSnapshot doc) {
@@ -34,6 +37,8 @@ class Relationship {
       profiles: List<String>.from(data['profiles'] ?? []),
       notes: data['notes'],
       metadata: data['metadata'],
+      current_standing: data['current_standing'] ??
+          const {'emoji': 'smile', 'summary': 'Currently a new relationship'},
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       updatedAt: (data['updatedAt'] as Timestamp).toDate(),
     );
@@ -48,6 +53,7 @@ class Relationship {
       'profiles': profiles,
       'notes': notes,
       'metadata': metadata,
+      'current_standing': current_standing,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
     };
@@ -61,6 +67,7 @@ class Relationship {
     List<String>? profiles,
     String? notes,
     Map<String, dynamic>? metadata,
+    Map<String, dynamic>? current_standing,
     DateTime? updatedAt,
   }) {
     return Relationship(
@@ -71,7 +78,8 @@ class Relationship {
       profiles: profiles ?? this.profiles,
       notes: notes ?? this.notes,
       metadata: metadata ?? this.metadata,
-      createdAt: this.createdAt,
+      current_standing: current_standing ?? this.current_standing,
+      createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
