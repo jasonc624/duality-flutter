@@ -46,6 +46,23 @@ class _LoginScreenState extends State<LoginScreen> {
             'name': _nameController.text.trim(),
             'joined': FieldValue.serverTimestamp(),
           });
+          String newProfileId = FirebaseFirestore.instance
+              .collection('users')
+              .doc(userCredential.user!.uid)
+              .collection('profiles')
+              .doc()
+              .id;
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userCredential.user!.uid)
+              .collection('profiles')
+              .doc(newProfileId)
+              .set({
+            'id': newProfileId,
+            'userRef': userCredential.user!.uid,
+            'name': 'Default',
+            'created': FieldValue.serverTimestamp(),
+          });
         } else {
           // Login existing user
           await FirebaseAuth.instance.signInWithEmailAndPassword(

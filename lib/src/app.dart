@@ -1,5 +1,4 @@
 import 'package:duality/src/login_page/login_page.dart';
-import 'package:duality/src/relationships/relationship_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -72,7 +71,7 @@ class MyApp extends StatelessWidget {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const CircularProgressIndicator();
               } else if (snapshot.hasData) {
-                return const MyHomePage(title: 'Duality');
+                return MyHomePage();
               } else {
                 return const LoginScreen();
               }
@@ -90,7 +89,7 @@ class MyApp extends StatelessWidget {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
                   default:
-                    return const MyHomePage(title: 'Duality');
+                    return MyHomePage();
                 }
               },
             );

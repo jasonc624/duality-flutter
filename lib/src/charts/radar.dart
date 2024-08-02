@@ -15,9 +15,14 @@ class BehaviorRadarChart extends StatelessWidget {
     final traitPairs = [
       ['compassionate', 'callous'],
       ['honest', 'deceitful'],
-      ['courageous', 'cowardly'],
       ['ambitious', 'lazy'],
       ['generous', 'greedy'],
+      ['courageous', 'cowardly'],
+      ['patient', 'impatient'],
+      ['humble', 'arrogant'],
+      ['loyal', 'disloyal'],
+      ['optimistic', 'pessimistic'],
+      ['responsible', 'irresponsible']
     ];
 
     // Function to get a human-readable label from the trait key
@@ -43,18 +48,20 @@ class BehaviorRadarChart extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
           SizedBox(
-            height: 250, // Adjust this value as needed
+            height: 300, // Adjust this value as needed
             child: RadarChart(
               RadarChartData(
                 titleTextStyle:
                     const TextStyle(color: Colors.black, fontSize: 11),
-                radarShape: RadarShape.polygon,
+                radarShape: RadarShape.circle,
                 radarBorderData:
-                    const BorderSide(color: Colors.black, width: 2),
+                    const BorderSide(color: Colors.deepPurpleAccent, width: 2),
                 ticksTextStyle:
                     const TextStyle(color: Colors.black, fontSize: 8),
-                tickBorderData: const BorderSide(color: Colors.grey),
-                gridBorderData: const BorderSide(color: Colors.grey, width: 1),
+                tickBorderData:
+                    const BorderSide(color: Colors.deepPurpleAccent),
+                gridBorderData:
+                    const BorderSide(color: Colors.deepPurpleAccent, width: 1),
                 tickCount: 5,
                 dataSets: [
                   RadarDataSet(
@@ -78,7 +85,7 @@ class BehaviorRadarChart extends StatelessWidget {
                     text: getTraitLabel(isPositive
                         ? traitPairs[index][0]
                         : traitPairs[index][1]),
-                    angle: 0,
+                    angle: angle + 0,
                     positionPercentageOffset: 0.1,
                   );
                 },

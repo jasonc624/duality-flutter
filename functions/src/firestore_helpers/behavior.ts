@@ -21,11 +21,16 @@ export async function updateBehavior(id: string, data: any) {
     delete onlyTraitData.title;
     delete onlyTraitData.updated;
     delete onlyTraitData.created;
+    delete onlyTraitData.mentions;
+    delete onlyTraitData.suggestion;
+    delete onlyTraitData.overall_score;
     // Flatten the data object
     const flattenedData = {
         id,
         title: data.title,
         mentions: data?.mentions,
+        suggestion: data?.suggestion,
+        overall_score: data?.overall_score,
         updated: Timestamp.now(),
         traitScores: { ...onlyTraitData },
     };

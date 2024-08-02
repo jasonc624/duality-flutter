@@ -28,6 +28,12 @@ export async function formatBehavior(behavior: any): Promise<[]> {
                                 }
                             }
                         },
+                        suggestion: {
+                            type: FunctionDeclarationSchemaType.STRING,
+                        },
+                        overall_score: {
+                            type: FunctionDeclarationSchemaType.NUMBER,
+                        },
                         compassionate_callous: {
                             type: FunctionDeclarationSchemaType.NUMBER,
                         },
@@ -103,7 +109,9 @@ export async function formatBehavior(behavior: any): Promise<[]> {
           - Zero (0) indicates a neutral aspect
           - Positive scores (1 to 5) indicate positive aspects
        b) Provide a brief explanation for the assigned score.
-    3. If the description contains any mentions of specific people, provide them as a string array.
+    3. If the description contains any mentions of specific person by name, provide them as a string array.
+    4. For any score less than 5, provide a suggestion for how to improve the behavior.
+    5. Provide a score between 0 and 100 for overall score, subtracting the negative scores and adding the positive scores.
     `;
     let result = await model.generateContent(prompt)
     functions.logger.log(result.response.text());

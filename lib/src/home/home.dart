@@ -1,43 +1,18 @@
 import 'package:duality/src/behavior_entry_feature/behavior_list.dart';
 import 'package:duality/src/relationships/relationships_list.dart';
 import 'package:flutter/material.dart';
-
 import '../behavior_entry_feature/create_update_behavior.dart';
 import '../settings/settings_view.dart';
 import 'timeline/bg_timeline.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+// Riverpod;
+import 'package:duality/src/providers/uiState.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+class MyHomePage extends ConsumerWidget {
+  const MyHomePage({super.key});
+  final String title = 'Duality';
   static const routeName = '/home';
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  DateTime _selectedDate = DateTime.now();
-  User? firebaseUser;
-  String currentUserUid = FirebaseAuth.instance.currentUser!.uid;
-  @override
-  void initState() {
-    super.initState();
-    FirebaseAuth.instance.authStateChanges().listen((User? user) {
-      if (mounted) {
-        setState(() {
-          firebaseUser = user;
-        });
-      }
-    });
-  }
-
-  void _onDateChanged(DateTime newDate) {
-    setState(() {
-      _selectedDate = newDate;
-    });
-  }
 
   Future<void> logout() async {
     try {
@@ -50,13 +25,58 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  Widget _getAvatarContent(User user) {
+    if (user.photoURL != null) {
+      return ClipOval(
+        child: Image.network(
+          user.photoURL!,
+          fit: BoxFit.cover,
+          width: 60,
+          height: 60,
+          errorBuilder: (context, error, stackTrace) {
+            return _getInitials(user);
+          },
+        ),
+      );
+    } else {
+      return _getInitials(user);
+    }
+  }
+
+  Widget _getInitials(User? user) {
+    final name = user?.displayName ?? user?.email ?? '';
+    final dynamic initials =
+        name.isNotEmpty ? name.substring(0, 2).toUpperCase() : 'JC';
+    return Text(
+      initials,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 24,
+        fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+
+  void _createBehavior(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const CreateUpdateBehavior(),
+      ),
+    );
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final uistate = ref.watch(uiStateProvider);
+    DateTime _selectedDate = uistate['selectedDate'];
+    String _selectedProfile = uistate['selectedProfile'];
+    User? firebaseUser;
+    String currentUserUid = FirebaseAuth.instance.currentUser!.uid;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        title: Text(title),
       ),
       drawer: Drawer(
         child: ListView(
@@ -90,7 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     CircleAvatar(
                       radius: 40,
                       backgroundColor: Colors.black,
-                      child: _getAvatarContent(firebaseUser as User),
+                      child: _getAvatarContent(firebaseUser),
                     ),
                 ],
               ),
@@ -146,7 +166,6 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             const SizedBox(height: 16.0),
             CustomBackgroundExample(
-              onDateChanged: _onDateChanged,
               initialDate: _selectedDate,
             ),
             const SizedBox(height: 16.0),
@@ -158,46 +177,6 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => _createBehavior(context),
         child: const Icon(Icons.add),
-      ),
-    );
-  }
-
-  Widget _getAvatarContent(User user) {
-    if (user.photoURL != null) {
-      return ClipOval(
-        child: Image.network(
-          user.photoURL!,
-          fit: BoxFit.cover,
-          width: 60,
-          height: 60,
-          errorBuilder: (context, error, stackTrace) {
-            return _getInitials(user);
-          },
-        ),
-      );
-    } else {
-      return _getInitials(user);
-    }
-  }
-
-  Widget _getInitials(User? user) {
-    final name = user?.displayName ?? user?.email ?? '';
-    final dynamic initials =
-        name.isNotEmpty ? name.substring(0, 2).toUpperCase() : 'JC';
-    return Text(
-      initials,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 24,
-        fontWeight: FontWeight.bold,
-      ),
-    );
-  }
-
-  void _createBehavior(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const CreateUpdateBehavior(),
       ),
     );
   }

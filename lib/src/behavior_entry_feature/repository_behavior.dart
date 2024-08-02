@@ -33,7 +33,7 @@ class BehaviorRepository {
 
   Stream<List<BehaviorEntry>> getBehaviorsByDate(
       DateTime date, String? userRef) {
-    print('Get behavior by date, heres users ${userRef.toString()}');
+    // print('Get behavior by date, heres users ${userRef.toString()}');
     // Create a DateTime for the start and end of the given date
     final startOfDay = DateTime(date.year, date.month, date.day);
     final endOfDay =
@@ -50,10 +50,10 @@ class BehaviorRepository {
           snapshot.docs.map((doc) => BehaviorEntry.fromFirestore(doc)).toList();
 
       // Optional: Keep the debug print if needed
-      behaviors.forEach((behavior) {
-        print(
-            'Behavior: ${behavior.title}, ${behavior.description}, Created: ${behavior.created}');
-      });
+      // behaviors.forEach((behavior) {
+      //   print(
+      //       'Behavior: ${behavior.title}, ${behavior.description}, Created: ${behavior.created}');
+      // });
 
       return behaviors;
     });

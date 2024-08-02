@@ -1,6 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../charts/radar.dart';
+import '../traits/trait_score_view.dart';
 import 'behavior_entry_model.dart';
 import 'create_update_behavior.dart';
 import 'repository_behavior.dart';
@@ -100,8 +100,15 @@ class _BehaviorViewState extends State<BehaviorView> {
                         _editBehavior(context, widget.behaviorEntry!),
                     child: Text('Edit'))
               ]),
-              const SizedBox(height: 30),
+              const SizedBox(height: 10),
               const Divider(),
+              if (widget.behaviorEntry != null &&
+                  widget.behaviorEntry!.traitScores != null)
+                _buildTraitScores(widget.behaviorEntry!.traitScores!),
+              const SizedBox(height: 30),
+              if (widget.behaviorEntry != null &&
+                  widget.behaviorEntry!.suggestion != null)
+                _buildSuggestion(widget.behaviorEntry!.suggestion!),
               const SizedBox(height: 30),
               if (widget.behaviorEntry != null &&
                   widget.behaviorEntry!.traitScores != null)
@@ -109,5 +116,52 @@ class _BehaviorViewState extends State<BehaviorView> {
             ],
           ),
         )));
+  }
+
+  Widget _buildSuggestion(String suggestion) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Suggestion',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        Text(suggestion)
+      ],
+    );
+  }
+
+  // In _BehaviorViewState class:
+  Widget _buildTraitScores(Map<String, dynamic> traitScores) {
+    List<Widget> traitScoreWidgets = [];
+
+    traitScores.forEach((key, value) {
+      if (key.endsWith('_reason')) return; // Skip reason entries
+
+      String trait = key;
+      dynamic score = value;
+      String reason =
+          traitScores['${key}_reason'] as String? ?? 'No reason provided';
+
+      traitScoreWidgets.add(
+        TraitScoreView(
+          trait: trait,
+          score: score,
+          reason: reason,
+        ),
+      );
+    });
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Explanation',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        ...traitScoreWidgets,
+      ],
+    );
   }
 }

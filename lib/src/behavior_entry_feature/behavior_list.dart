@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'behavior_entry_model.dart';
 import 'behavior_view.dart';
-import 'create_update_behavior.dart';
+
 import 'repository_behavior.dart';
 
 class BehaviorListView extends StatelessWidget {
@@ -14,6 +14,13 @@ class BehaviorListView extends StatelessWidget {
   const BehaviorListView(
       {Key? key, required this.selectedDate, required this.userRef})
       : super(key: key);
+  void _viewBehavior(BuildContext context, BehaviorEntry behavior) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => BehaviorView(behaviorEntry: behavior),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,14 +71,6 @@ class BehaviorListView extends StatelessWidget {
           },
         );
       },
-    );
-  }
-
-  void _viewBehavior(BuildContext context, BehaviorEntry behavior) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => BehaviorView(behaviorEntry: behavior),
-      ),
     );
   }
 }
