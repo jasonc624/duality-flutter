@@ -16,14 +16,19 @@ class BehaviorView extends StatefulWidget {
   _BehaviorViewState createState() => _BehaviorViewState();
 }
 
-class _BehaviorViewState extends State<BehaviorView> {
+class _BehaviorViewState extends State<BehaviorView>
+    with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _descriptionController = TextEditingController();
   final _repository = BehaviorRepository();
   String currentUserUid = FirebaseAuth.instance.currentUser!.uid;
+
+  late TabController _tabController;
+
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 3, vsync: this);
     if (widget.behaviorEntry != null) {
       _descriptionController.text = widget.behaviorEntry!.description;
     }
@@ -32,6 +37,7 @@ class _BehaviorViewState extends State<BehaviorView> {
   @override
   void dispose() {
     _descriptionController.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
@@ -77,45 +83,88 @@ class _BehaviorViewState extends State<BehaviorView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Behavior'),
+      appBar: AppBar(
+        title: const Text('Behavior'),
+        actions: [
+          TextButton(
+              onPressed: () => _editBehavior(context, widget.behaviorEntry!),
+              child: const Text('Edit'))
+        ],
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: 'Explanation'),
+            Tab(text: 'Visualize'),
+            Tab(text: 'Remediation'),
+          ],
         ),
-        body: SingleChildScrollView(
-            child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(widget.behaviorEntry?.title ?? 'Untitled ',
-                  style: const TextStyle(
-                      fontSize: 24, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
-              Text(widget.behaviorEntry?.description ?? "",
-                  style: const TextStyle(
-                      fontSize: 16, fontStyle: FontStyle.italic)),
-              const SizedBox(height: 30),
-              Column(mainAxisAlignment: MainAxisAlignment.end, children: [
-                TextButton(
-                    onPressed: () =>
-                        _editBehavior(context, widget.behaviorEntry!),
-                    child: Text('Edit'))
-              ]),
-              const SizedBox(height: 10),
-              const Divider(),
-              if (widget.behaviorEntry != null &&
-                  widget.behaviorEntry!.traitScores != null)
-                _buildTraitScores(widget.behaviorEntry!.traitScores!),
-              const SizedBox(height: 30),
-              if (widget.behaviorEntry != null &&
-                  widget.behaviorEntry!.suggestion != null)
-                _buildSuggestion(widget.behaviorEntry!.suggestion!),
-              const SizedBox(height: 30),
-              if (widget.behaviorEntry != null &&
-                  widget.behaviorEntry!.traitScores != null)
-                BehaviorRadarChart(behavior: widget.behaviorEntry!),
-            ],
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(widget.behaviorEntry?.title ?? 'Untitled ',
+                    style: const TextStyle(
+                        fontSize: 24, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                Text(widget.behaviorEntry?.description ?? "",
+                    style: const TextStyle(
+                        fontSize: 16, fontStyle: FontStyle.italic)),
+                const Divider(),
+              ],
+            ),
           ),
-        )));
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildTraitScoresTab(),
+                _buildRadarChartTab(),
+                _buildDetailsTab(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailsTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (widget.behaviorEntry != null &&
+              widget.behaviorEntry!.suggestion != null)
+            _buildSuggestion(widget.behaviorEntry!.suggestion!),
+          const SizedBox(height: 30),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTraitScoresTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+      child: widget.behaviorEntry != null &&
+              widget.behaviorEntry!.traitScores != null
+          ? _buildTraitScores(widget.behaviorEntry!.traitScores!)
+          : const Text('No trait scores available.'),
+    );
+  }
+
+  Widget _buildRadarChartTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+      child: widget.behaviorEntry != null &&
+              widget.behaviorEntry!.traitScores != null
+          ? BehaviorRadarChart(behavior: widget.behaviorEntry!)
+          : const Text('No chart data available.'),
+    );
   }
 
   Widget _buildSuggestion(String suggestion) {
@@ -131,7 +180,6 @@ class _BehaviorViewState extends State<BehaviorView> {
     );
   }
 
-  // In _BehaviorViewState class:
   Widget _buildTraitScores(Map<String, dynamic> traitScores) {
     List<Widget> traitScoreWidgets = [];
 
