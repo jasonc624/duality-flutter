@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../providers/uiState.dart';
 import 'behavior_entry_model.dart';
 import 'behavior_view.dart';
 
 import 'repository_behavior.dart';
 
-class BehaviorListView extends StatelessWidget {
+class BehaviorListView extends ConsumerWidget {
   static const routeName = '/';
 
-  final DateTime selectedDate;
   final String userRef;
 
-  const BehaviorListView(
-      {Key? key, required this.selectedDate, required this.userRef})
-      : super(key: key);
+  const BehaviorListView({Key? key, required this.userRef}) : super(key: key);
   void _viewBehavior(BuildContext context, BehaviorEntry behavior) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -23,11 +22,13 @@ class BehaviorListView extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final uistate = ref.watch(uiStateProvider);
+    DateTime _selectedDate = uistate['selectedDate'];
     final BehaviorRepository _repository = BehaviorRepository();
 
     return StreamBuilder<List<BehaviorEntry>>(
-      stream: _repository.getBehaviorsByDate(selectedDate, userRef),
+      stream: _repository.getBehaviorsByDate(_selectedDate, userRef),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           print('Error: ${snapshot.error}');
@@ -42,7 +43,7 @@ class BehaviorListView extends StatelessWidget {
           print('no data in snapshot');
           return Center(
               child: Text(
-                  'No behaviors for ${selectedDate.toString().split(' ')[0]}'));
+                  'No behaviors for ${_selectedDate.toString().split(' ')[0]}'));
         }
 
         return ListView.separated(

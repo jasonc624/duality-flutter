@@ -4,18 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CustomBackgroundExample extends ConsumerWidget {
-  final DateTime initialDate;
-
   const CustomBackgroundExample({
     Key? key,
-    required this.initialDate,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final uistateProv = ref.watch(uiStateProvider);
+    DateTime _selectedDate = uistateProv['selectedDate'];
     UiState uistate = ref.read(uiStateProvider.notifier);
     return EasyDateTimeLine(
-      initialDate: initialDate,
+      initialDate: _selectedDate,
       onDateChange: (selectedDate) {
         uistate.setDate(selectedDate);
       },

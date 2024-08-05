@@ -1,14 +1,35 @@
 const functions = require('firebase-functions');
-import { FunctionDeclarationSchemaType, GoogleGenerativeAI } from "@google/generative-ai";
+import { FunctionDeclarationSchemaType, GenerativeModel, GoogleGenerativeAI } from "@google/generative-ai";
 const genAI = new GoogleGenerativeAI("AIzaSyDlP77_zfPOixhygxfqCrcQM5q2LJHckAY");
 
 
 export async function formatBehavior(behavior: any): Promise<[]> {
     functions.logger.log('Behavior to format:', behavior);
     const behaviorText = behavior?.description;
+    const safe: any[] = [
+
+
+        {
+            "category": "HARM_CATEGORY_HARASSMENT",
+            "threshold": "BLOCK_NONE",
+        },
+        {
+            "category": "HARM_CATEGORY_HATE_SPEECH",
+            "threshold": "BLOCK_NONE",
+        },
+        {
+            "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+            "threshold": "BLOCK_NONE",
+        },
+        {
+            "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+            "threshold": "BLOCK_NONE",
+        },
+    ]
     functions.logger.log(behaviorText);
     const model = genAI.getGenerativeModel({
         model: "gemini-1.5-flash",
+        safetySettings: safe,
         generationConfig: {
             responseMimeType: "application/json",
             responseSchema: {
@@ -121,7 +142,7 @@ export async function formatBehavior(behavior: any): Promise<[]> {
     });
     let prompt = `Analyze the following behavior: "${behaviorText}"
 
-    1. Provide a concise title that summarizes the behavior.
+    1. Provide a concise title that summarizes the behavior. The behavior is being given to you by the user in the first person.
     
     2. Generate a list of personality traits in schema associated with this behavior. For each trait:
        a) Assign a score between -5 and 5, where:
@@ -129,7 +150,7 @@ export async function formatBehavior(behavior: any): Promise<[]> {
           - Zero (0) indicates a neutral aspect
           - Positive scores (1 to 5) indicate positive aspects - Only give the full score amount when the action affects another person.
        b) Provide a brief explanation for the assigned score.
-    3. If the description contains any mentions of specific person by name, provide them as a string array.
+    3. If the description contains any mentions of specific person by name, provide them as a string array. However you must not analyze the other person.
     4. For any score less than 5, provide a suggestion for how to improve the behavior.
     5. Sometimes the behavior can be suggestive of a personality disorder. For this give a score from 1 - 5 if it meets any of these disorders:
         a) Cluster A (Odd or Eccentric Disorders)

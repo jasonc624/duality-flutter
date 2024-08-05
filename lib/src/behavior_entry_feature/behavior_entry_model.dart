@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BehaviorEntry {
   BehaviorEntry({
@@ -14,6 +15,7 @@ class BehaviorEntry {
     this.isPublic = false,
     this.suggestion,
     this.overall_score,
+    this.disorders,
   })  : created = created ?? DateTime.now(),
         updated = updated ?? DateTime.now();
 
@@ -29,16 +31,17 @@ class BehaviorEntry {
   final bool? isPublic;
   final String? suggestion;
   final int? overall_score;
+  final List<Disorder>? disorders;
 
   factory BehaviorEntry.fromFirestore(DocumentSnapshot doc) {
-    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    final data = doc.data() as Map<String, dynamic>;
     return BehaviorEntry(
       id: doc.id,
       description: data['description'] ?? '',
       userRef: data['userRef'] as String,
       profile: data['profile'] as String?,
       isPublic: data['isPublic'] as bool?,
-      title: data['title'],
+      title: data['title'] as String?,
       traitScores: data['traitScores'] != null
           ? Map<String, dynamic>.from(data['traitScores'])
           : null,
@@ -47,11 +50,14 @@ class BehaviorEntry {
       updated: (data['updated'] as Timestamp?)?.toDate(),
       suggestion: data['suggestion'] as String?,
       overall_score: data['overall_score'] as int?,
+      disorders: (data['disorders'] as List<dynamic>?)
+          ?.map((e) => Disorder.fromMap(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 
   Map<String, dynamic> toFirestore() {
-    Map<String, dynamic> data = {
+    final data = {
       'description': description,
       'userRef': userRef,
       'title': title,
@@ -60,10 +66,16 @@ class BehaviorEntry {
       'created': created,
       'updated': FieldValue.serverTimestamp(),
       'isPublic': isPublic,
+      'suggestion': suggestion,
+      'overall_score': overall_score,
     };
 
     if (profile != null) {
       data['profile'] = profile;
+    }
+
+    if (disorders != null) {
+      data['disorders'] = disorders!.map((d) => d.toMap()).toList();
     }
 
     return data;
@@ -82,6 +94,7 @@ class BehaviorEntry {
     bool? isPublic,
     String? suggestion,
     int? overall_score,
+    List<Disorder>? disorders,
   }) {
     return BehaviorEntry(
       id: id ?? this.id,
@@ -96,6 +109,7 @@ class BehaviorEntry {
       isPublic: isPublic ?? this.isPublic,
       suggestion: suggestion ?? this.suggestion,
       overall_score: overall_score ?? this.overall_score,
+      disorders: disorders ?? this.disorders,
     );
   }
 
@@ -106,5 +120,31 @@ class BehaviorEntry {
 
   String? getTraitReason(String trait) {
     return traitScores?['${trait}_reason'] as String?;
+  }
+}
+
+class Disorder {
+  final String name;
+  final String reason;
+  final int score;
+
+  Disorder({required this.name, required this.reason, required this.score});
+
+  // Factory constructor to create a Disorder from a map
+  factory Disorder.fromMap(Map<String, dynamic> map) {
+    return Disorder(
+      name: map['name'] as String,
+      reason: map['reason'] as String,
+      score: map['score'] as int,
+    );
+  }
+
+  // Method to convert Disorder to a map
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'reason': reason,
+      'score': score,
+    };
   }
 }

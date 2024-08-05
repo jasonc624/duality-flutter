@@ -14,8 +14,9 @@ exports.behavior_added = (0, firestore_1.onDocumentCreated)("behaviors/{behavior
         return null;
     }
     try {
-        const formattedData = await (0, langchain_helpers_1.formatBehavior)(snapshot.data()).catch(error => {
+        const formattedData = await (0, langchain_helpers_1.formatBehavior)(snapshot.data()).catch(async (error) => {
             functions.logger.error('failed at formatBehavior', error);
+            await (0, behavior_1.deleteBehavior)(behaviorId);
             throw new functions.https.HttpsError("failed-precondition", error);
         });
         functions.logger.log('updating behavior with data', formattedData);

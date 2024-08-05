@@ -18,12 +18,15 @@ export async function updateBehavior(id: string, data: any) {
         data = data[0];
     }
     let onlyTraitData = structuredClone(data);
+    let onlyDisorders = structuredClone(onlyTraitData.disorders);
+    delete onlyTraitData.disorders;
     delete onlyTraitData.title;
     delete onlyTraitData.updated;
     delete onlyTraitData.created;
     delete onlyTraitData.mentions;
     delete onlyTraitData.suggestion;
     delete onlyTraitData.overall_score;
+
     // Flatten the data object
     const flattenedData = {
         id,
@@ -33,6 +36,10 @@ export async function updateBehavior(id: string, data: any) {
         overall_score: data?.overall_score,
         updated: Timestamp.now(),
         traitScores: { ...onlyTraitData },
+        disorders: onlyDisorders
     };
     await db.collection('behaviors').doc(id).update(flattenedData, { merge: true });
+}
+export async function deleteBehavior(id: string): Promise<any> {
+    await db.collection('behaviors').doc(id).delete();
 }

@@ -4,7 +4,6 @@ import '../traits/trait_score_view.dart';
 import 'behavior_entry_model.dart';
 import 'create_update_behavior.dart';
 import 'repository_behavior.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 
 class BehaviorView extends StatefulWidget {
@@ -86,49 +85,67 @@ class _BehaviorViewState extends State<BehaviorView>
       appBar: AppBar(
         title: const Text('Behavior'),
         actions: [
-          TextButton(
-              onPressed: () => _editBehavior(context, widget.behaviorEntry!),
-              child: const Text('Edit'))
+          if (widget.behaviorEntry != null)
+            TextButton(
+                onPressed: () => _editBehavior(context, widget.behaviorEntry!),
+                child: const Text('Edit'))
         ],
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
             Tab(text: 'Explanation'),
             Tab(text: 'Visualize'),
-            Tab(text: 'Remediation'),
+            Tab(text: 'Disorders'),
           ],
         ),
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(widget.behaviorEntry?.title ?? 'Untitled ',
-                    style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 10),
-                Text(widget.behaviorEntry?.description ?? "",
-                    style: const TextStyle(
-                        fontSize: 16, fontStyle: FontStyle.italic)),
-                const Divider(),
-              ],
-            ),
-          ),
+          const SizedBox(height: 16.0),
           Expanded(
             child: TabBarView(
               controller: _tabController,
               children: [
                 _buildTraitScoresTab(),
                 _buildRadarChartTab(),
-                _buildDetailsTab(),
+                _buildDisordersTab(),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildDisordersTab() {
+    if (widget.behaviorEntry == null ||
+        widget.behaviorEntry!.disorders == null) {
+      return const Center(child: Text('No connection to a disorder found.'));
+    }
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+      child: Column(
+        children: widget.behaviorEntry!.disorders!
+            .map((disorder) => _buildDisorderEntry(disorder))
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _buildDisorderEntry(Disorder disorder) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          disorder.name,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Text(disorder.reason),
+        const SizedBox(height: 8),
+        Text('Score: ${disorder.score}'),
+        const Divider(height: 30, thickness: 1),
+      ],
     );
   }
 
@@ -149,12 +166,25 @@ class _BehaviorViewState extends State<BehaviorView>
 
   Widget _buildTraitScoresTab() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
-      child: widget.behaviorEntry != null &&
-              widget.behaviorEntry!.traitScores != null
-          ? _buildTraitScores(widget.behaviorEntry!.traitScores!)
-          : const Text('No trait scores available.'),
-    );
+        padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+        child: Column(children: [
+          Text(widget.behaviorEntry?.title ?? 'Untitled ',
+              style:
+                  const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          Text(widget.behaviorEntry?.description ?? "",
+              style:
+                  const TextStyle(fontSize: 16, fontStyle: FontStyle.italic)),
+          const Divider(),
+          if (widget.behaviorEntry != null &&
+              widget.behaviorEntry!.suggestion != null)
+            _buildSuggestion(widget.behaviorEntry!.suggestion!),
+          const SizedBox(height: 30),
+          widget.behaviorEntry != null &&
+                  widget.behaviorEntry!.traitScores != null
+              ? _buildTraitScores(widget.behaviorEntry!.traitScores!)
+              : const Text('No trait scores available.'),
+        ]));
   }
 
   Widget _buildRadarChartTab() {

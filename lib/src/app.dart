@@ -27,7 +27,6 @@ class MyApp extends StatelessWidget {
     //
     // The ListenableBuilder Widget listens to the SettingsController for changes.
     // Whenever the user updates their settings, the MaterialApp is rebuilt.
-    return Provider<UiStateModel>.value(value,)
     return ListenableBuilder(
       listenable: settingsController,
       builder: (BuildContext context, Widget? child) {

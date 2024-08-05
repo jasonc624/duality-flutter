@@ -8,14 +8,8 @@ import '../settings/settings_view.dart';
 
 class SideNavigation extends ConsumerWidget {
   final User? firebaseUser;
-  final List<Map<String, dynamic>> profiles;
-  final String selectedProfile;
 
-  const SideNavigation(
-      {super.key,
-      required this.firebaseUser,
-      required this.profiles,
-      required this.selectedProfile});
+  const SideNavigation({super.key, required this.firebaseUser});
   Future<void> logout() async {
     try {
       await FirebaseAuth.instance.signOut();
