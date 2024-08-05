@@ -1,4 +1,5 @@
 import 'package:duality/src/login_page/login_page.dart';
+import 'package:duality/src/providers/profile/profileState.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
     //
     // The ListenableBuilder Widget listens to the SettingsController for changes.
     // Whenever the user updates their settings, the MaterialApp is rebuilt.
+    return Provider<UiStateModel>.value(value,)
     return ListenableBuilder(
       listenable: settingsController,
       builder: (BuildContext context, Widget? child) {

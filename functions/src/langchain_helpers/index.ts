@@ -28,6 +28,26 @@ export async function formatBehavior(behavior: any): Promise<[]> {
                                 }
                             }
                         },
+                        disorders: {
+                            type: FunctionDeclarationSchemaType.ARRAY,
+                            items: {
+                                type: FunctionDeclarationSchemaType.OBJECT,
+                                properties: {
+                                    description: {
+                                        type: FunctionDeclarationSchemaType.STRING,
+                                    },
+                                    name: {
+                                        type: FunctionDeclarationSchemaType.STRING,
+                                    },
+                                    reason: {
+                                        type: FunctionDeclarationSchemaType.STRING,
+                                    },
+                                    score: {
+                                        type: FunctionDeclarationSchemaType.NUMBER,
+                                    },
+                                }
+                            }
+                        },
                         suggestion: {
                             type: FunctionDeclarationSchemaType.STRING,
                         },
@@ -105,13 +125,13 @@ export async function formatBehavior(behavior: any): Promise<[]> {
     
     2. Generate a list of personality traits in schema associated with this behavior. For each trait:
        a) Assign a score between -5 and 5, where:
-          - Negative scores (-5 to -1) indicate negative aspects
+          - Negative scores (-5 to -1) indicate negative aspects - Only give the full score amount when the action affects another person.
           - Zero (0) indicates a neutral aspect
-          - Positive scores (1 to 5) indicate positive aspects
+          - Positive scores (1 to 5) indicate positive aspects - Only give the full score amount when the action affects another person.
        b) Provide a brief explanation for the assigned score.
     3. If the description contains any mentions of specific person by name, provide them as a string array.
     4. For any score less than 5, provide a suggestion for how to improve the behavior.
-    5. Provide a score between 0 and 100 for overall score, subtracting the negative scores and adding the positive scores.
+    5. Sometimes the behavior can be suggestive of a personality disorder. For this give a score of up to 5.
     `;
     let result = await model.generateContent(prompt)
     functions.logger.log(result.response.text());
