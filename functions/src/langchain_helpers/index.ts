@@ -131,7 +131,20 @@ export async function formatBehavior(behavior: any): Promise<[]> {
        b) Provide a brief explanation for the assigned score.
     3. If the description contains any mentions of specific person by name, provide them as a string array.
     4. For any score less than 5, provide a suggestion for how to improve the behavior.
-    5. Sometimes the behavior can be suggestive of a personality disorder. For this give a score of up to 5.
+    5. Sometimes the behavior can be suggestive of a personality disorder. For this give a score from 1 - 5 if it meets any of these disorders:
+        a) Cluster A (Odd or Eccentric Disorders)
+            Paranoid Personality Disorder
+            Schizoid Personality Disorder
+            Schizotypal Personality Disorder
+        b) Cluster B (Dramatic, Emotional, or Erratic Disorders)
+            Antisocial Personality Disorder
+            Borderline Personality Disorder
+            Histrionic Personality Disorder
+            Narcissistic Personality Disorder
+        c) Cluster C (Anxious or Fearful Disorders)
+            Avoidant Personality Disorder
+            Dependent Personality Disorder
+            Obsessive-Compulsive Personality Disorder
     `;
     let result = await model.generateContent(prompt)
     functions.logger.log(result.response.text());
