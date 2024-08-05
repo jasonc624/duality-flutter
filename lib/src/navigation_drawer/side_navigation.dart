@@ -1,8 +1,10 @@
 import 'package:duality/src/home/home.dart';
+import 'package:duality/src/profiles_feature/profiles_view.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../profiles_feature/profile_list_widget.dart';
 import '../relationships/relationships_list.dart';
 import '../settings/settings_view.dart';
 
@@ -76,28 +78,40 @@ class SideNavigation extends ConsumerWidget {
                   'May your best side win today',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 14,
+                    fontSize: 11,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 5),
                 if (firebaseUser != null)
                   CircleAvatar(
                     radius: 25,
                     backgroundColor: Colors.black,
                     child: _getAvatarContent(firebaseUser!),
                   ),
-                const SizedBox(height: 16),
+                const Expanded(
+                  child: ProfileListWidget(),
+                ),
               ],
             ),
           ),
           ListTile(
+            leading: const Icon(Icons.home_outlined),
             title: const Text('Home'),
             onTap: () {
               Navigator.restorablePushNamed(context, MyHomePage.routeName);
             },
           ),
           ListTile(
+            leading: const Icon(Icons.person_2_outlined),
+            title: const Text('Profiles'),
+            onTap: () {
+              Navigator.restorablePushNamed(
+                  context, ProfilesOverviewWidget.routeName);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.diversity_1_outlined),
             title: const Text('Relationships'),
             onTap: () {
               Navigator.restorablePushNamed(
@@ -105,18 +119,7 @@ class SideNavigation extends ConsumerWidget {
             },
           ),
           ListTile(
-            title: const Text('Trends'),
-            onTap: () {
-              Navigator.restorablePushNamed(context, MyHomePage.routeName);
-            },
-          ),
-          ListTile(
-            title: const Text('Goals'),
-            onTap: () {
-              Navigator.restorablePushNamed(context, MyHomePage.routeName);
-            },
-          ),
-          ListTile(
+            leading: const Icon(Icons.settings_outlined),
             title: const Text('Settings'),
             onTap: () {
               Navigator.restorablePushNamed(context, SettingsView.routeName);

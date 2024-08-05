@@ -12,7 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MyHomePage extends ConsumerWidget {
   const MyHomePage({super.key});
-  final String title = 'Duality';
+  final String title = 'Polarity';
   static const routeName = '/home';
 
   Future<void> logout() async {
@@ -86,7 +86,7 @@ class MyHomePage extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const SizedBox(height: 16.0),
-            CustomBackgroundExample(),
+            const CustomBackgroundExample(),
             const SizedBox(height: 16.0),
             BehaviorListView(userRef: currentUserUid),
           ],

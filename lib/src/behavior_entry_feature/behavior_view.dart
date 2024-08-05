@@ -17,9 +17,6 @@ class BehaviorView extends StatefulWidget {
 
 class _BehaviorViewState extends State<BehaviorView>
     with SingleTickerProviderStateMixin {
-  final _formKey = GlobalKey<FormState>();
-  final _descriptionController = TextEditingController();
-  final _repository = BehaviorRepository();
   String currentUserUid = FirebaseAuth.instance.currentUser!.uid;
 
   late TabController _tabController;
@@ -28,47 +25,12 @@ class _BehaviorViewState extends State<BehaviorView>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    if (widget.behaviorEntry != null) {
-      _descriptionController.text = widget.behaviorEntry!.description;
-    }
   }
 
   @override
   void dispose() {
-    _descriptionController.dispose();
     _tabController.dispose();
     super.dispose();
-  }
-
-  void _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      final description = _descriptionController.text;
-
-      if (widget.behaviorEntry == null) {
-        // Create new behavior
-        final newBehavior =
-            BehaviorEntry(description: description, userRef: currentUserUid);
-        String newId = await _repository.addBehavior(newBehavior);
-
-        // Fetch the complete document
-        BehaviorEntry createdBehavior = await _repository.getBehavior(newId);
-
-        // Now you can see the complete response
-        print('Created Behavior: ${createdBehavior.id}');
-        print('Title: ${createdBehavior.title}');
-        print('Description: ${createdBehavior.description}');
-        print('Trait Scores: ${createdBehavior.traitScores}');
-        print('Created: ${createdBehavior.created}');
-        print('Updated: ${createdBehavior.updated}');
-      } else {
-        // Update existing behavior
-        final updatedBehavior =
-            widget.behaviorEntry!.copyWith(description: description);
-        await _repository.updateBehavior(updatedBehavior);
-      }
-
-      Navigator.of(context).pop();
-    }
   }
 
   void _editBehavior(BuildContext context, BehaviorEntry behavior) {
@@ -100,23 +62,20 @@ class _BehaviorViewState extends State<BehaviorView>
             ],
           ),
         ),
-        body: Container(
-          color: Colors.white,
-          child: Column(
-            children: [
-              const SizedBox(height: 16.0),
-              Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    _buildTraitScoresTab(),
-                    _buildRadarChartTab(),
-                    _buildDisordersTab(),
-                  ],
-                ),
+        body: Column(
+          children: [
+            const SizedBox(height: 16.0),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildTraitScoresTab(),
+                  _buildRadarChartTab(),
+                  _buildDisordersTab(),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ));
   }
 

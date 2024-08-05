@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'uiState.g.dart';
@@ -8,9 +7,6 @@ class UiState extends _$UiState {
   @override
   Map<String, dynamic> build() => {
         'selectedDate': DateTime.now(),
-        'selectedProfile': '',
-        'profiles':
-            <Map<String, dynamic>>[] // Initialize profiles as an empty list
       };
 
   void setDate(DateTime selectedDate) {

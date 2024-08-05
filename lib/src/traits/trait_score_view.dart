@@ -33,6 +33,7 @@ class TraitScoreView extends StatelessWidget {
     String scoreText = _formatScore(score);
 
     return Card(
+      color: Colors.white,
       elevation: 2,
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: Padding(
@@ -56,7 +57,7 @@ class TraitScoreView extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               reason,
-              style: const TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+              style: const TextStyle(fontSize: 14),
             ),
           ],
         ),

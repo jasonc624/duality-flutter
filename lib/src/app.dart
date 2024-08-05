@@ -1,5 +1,5 @@
 import 'package:duality/src/login_page/login_page.dart';
-import 'package:duality/src/providers/profile/profileState.dart';
+import 'package:duality/src/profiles_feature/profiles_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -87,6 +87,8 @@ class MyApp extends StatelessWidget {
                 switch (routeSettings.name) {
                   case RelationshipsPage.routeName:
                     return RelationshipsPage();
+                  case ProfilesOverviewWidget.routeName:
+                    return ProfilesOverviewWidget();
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
                   default:
