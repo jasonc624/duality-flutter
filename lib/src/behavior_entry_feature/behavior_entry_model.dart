@@ -30,7 +30,7 @@ class BehaviorEntry {
   final DateTime updated;
   final bool? isPublic;
   final String? suggestion;
-  final int? overall_score;
+  final double? overall_score;
   final List<Disorder>? disorders;
 
   factory BehaviorEntry.fromFirestore(DocumentSnapshot doc) {
@@ -49,7 +49,7 @@ class BehaviorEntry {
       created: (data['created'] as Timestamp?)?.toDate(),
       updated: (data['updated'] as Timestamp?)?.toDate(),
       suggestion: data['suggestion'] as String?,
-      overall_score: data['overall_score'] as int?,
+      overall_score: data['overall_score'] as double?,
       disorders: (data['disorders'] as List<dynamic>?)
           ?.map((e) => Disorder.fromMap(e as Map<String, dynamic>))
           .toList(),
@@ -93,7 +93,7 @@ class BehaviorEntry {
     DateTime? updated,
     bool? isPublic,
     String? suggestion,
-    int? overall_score,
+    double? overall_score,
     List<Disorder>? disorders,
   }) {
     return BehaviorEntry(

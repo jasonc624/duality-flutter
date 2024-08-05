@@ -114,7 +114,7 @@ class _CreateUpdateBehaviorState extends State<CreateUpdateBehavior> {
                       border: OutlineInputBorder(),
                       labelText: 'Description',
                       hintText:
-                          'Enter in something you did or an interaction you had.'),
+                          'Enter in something you did or an interaction you had, this works best when you write it in the first person.'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Required';

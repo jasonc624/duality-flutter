@@ -82,39 +82,42 @@ class _BehaviorViewState extends State<BehaviorView>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Behavior'),
-        actions: [
-          if (widget.behaviorEntry != null)
-            TextButton(
-                onPressed: () => _editBehavior(context, widget.behaviorEntry!),
-                child: const Text('Edit'))
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Explanation'),
-            Tab(text: 'Visualize'),
-            Tab(text: 'Disorders'),
+        appBar: AppBar(
+          title: const Text('Behavior'),
+          actions: [
+            if (widget.behaviorEntry != null)
+              TextButton(
+                  onPressed: () =>
+                      _editBehavior(context, widget.behaviorEntry!),
+                  child: const Text('Edit'))
           ],
-        ),
-      ),
-      body: Column(
-        children: [
-          const SizedBox(height: 16.0),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildTraitScoresTab(),
-                _buildRadarChartTab(),
-                _buildDisordersTab(),
-              ],
-            ),
+          bottom: TabBar(
+            controller: _tabController,
+            tabs: const [
+              Tab(text: 'Explanation'),
+              Tab(text: 'Visualize'),
+              Tab(text: 'Disorders'),
+            ],
           ),
-        ],
-      ),
-    );
+        ),
+        body: Container(
+          color: Colors.white,
+          child: Column(
+            children: [
+              const SizedBox(height: 16.0),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _buildTraitScoresTab(),
+                    _buildRadarChartTab(),
+                    _buildDisordersTab(),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ));
   }
 
   Widget _buildDisordersTab() {
@@ -149,24 +152,9 @@ class _BehaviorViewState extends State<BehaviorView>
     );
   }
 
-  Widget _buildDetailsTab() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (widget.behaviorEntry != null &&
-              widget.behaviorEntry!.suggestion != null)
-            _buildSuggestion(widget.behaviorEntry!.suggestion!),
-          const SizedBox(height: 30),
-        ],
-      ),
-    );
-  }
-
   Widget _buildTraitScoresTab() {
     return SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+        padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0),
         child: Column(children: [
           Text(widget.behaviorEntry?.title ?? 'Untitled ',
               style:
@@ -213,22 +201,34 @@ class _BehaviorViewState extends State<BehaviorView>
   Widget _buildTraitScores(Map<String, dynamic> traitScores) {
     List<Widget> traitScoreWidgets = [];
 
-    traitScores.forEach((key, value) {
-      if (key.endsWith('_reason')) return; // Skip reason entries
+    traitScores.entries
+        .where((entry) => !entry.key.endsWith('_reason'))
+        .forEach((entry) {
+      String trait = entry.key;
+      dynamic score = entry.value;
 
-      String trait = key;
-      dynamic score = value;
+      // Convert score to int if it's a number, otherwise use 0
+      int numericScore = (score is num) ? score.toInt() : 0;
+
+      // Skip this trait if the score is 0
+      if (numericScore == 0) return;
+
       String reason =
-          traitScores['${key}_reason'] as String? ?? 'No reason provided';
+          traitScores['${trait}_reason']?.toString() ?? 'No reason provided';
 
       traitScoreWidgets.add(
         TraitScoreView(
           trait: trait,
-          score: score,
+          score: numericScore,
           reason: reason,
         ),
       );
     });
+
+    // If no non-zero scores, return an empty container
+    if (traitScoreWidgets.isEmpty) {
+      return Container();
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
