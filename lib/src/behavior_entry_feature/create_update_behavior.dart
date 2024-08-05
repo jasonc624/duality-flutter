@@ -1,57 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/profileState.dart';
 import 'behavior_entry_model.dart';
 import 'repository_behavior.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 
-class CreateUpdateBehavior extends StatefulWidget {
+class CreateUpdateBehavior extends ConsumerStatefulWidget {
   const CreateUpdateBehavior({Key? key, this.behaviorEntry}) : super(key: key);
   final BehaviorEntry? behaviorEntry;
   static const routeName = '/create_update_behavior';
 
   @override
-  _CreateUpdateBehaviorState createState() => _CreateUpdateBehaviorState();
+  ConsumerState<CreateUpdateBehavior> createState() =>
+      _CreateUpdateBehaviorState();
 }
 
-class _CreateUpdateBehaviorState extends State<CreateUpdateBehavior> {
+class _CreateUpdateBehaviorState extends ConsumerState<CreateUpdateBehavior> {
   final _formKey = GlobalKey<FormState>();
   final _dateController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _repository = BehaviorRepository();
   String currentUserUid = FirebaseAuth.instance.currentUser!.uid;
 
-  List<String> _profiles = [];
-  String? _selectedProfile;
+  String? _selectedProfileId;
   List<String> _mentions = [];
   bool _isPublic = false;
 
   @override
   void initState() {
     super.initState();
-    _loadProfiles();
+
     if (widget.behaviorEntry != null) {
+      // Updating existing behavior
       _descriptionController.text = widget.behaviorEntry!.description;
       _dateController.text =
           DateFormat('yyyy-MM-dd').format(widget.behaviorEntry!.created);
-      _selectedProfile = widget.behaviorEntry!.profile;
+      _selectedProfileId = widget.behaviorEntry!.profile;
       _mentions = widget.behaviorEntry!.mentions ?? [];
       _isPublic = widget.behaviorEntry!.isPublic ?? false;
     } else {
+      // New behavior
       _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
     }
-  }
-
-  void _loadProfiles() async {
-    final profilesSnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUserUid)
-        .collection('profiles')
-        .get();
-
-    setState(() {
-      _profiles = profilesSnapshot.docs.map((doc) => doc.id).toList();
-    });
   }
 
   @override
@@ -62,10 +53,11 @@ class _CreateUpdateBehaviorState extends State<CreateUpdateBehavior> {
   }
 
   void _submitForm() async {
-    //TODO: Implement default created date from state
     if (_formKey.currentState!.validate()) {
       final description = _descriptionController.text;
       final created = DateFormat('yyyy-MM-dd').parse(_dateController.text);
+      final profileState = ref.read(profilesProvider);
+
       if (widget.behaviorEntry == null) {
         // Create new behavior
         final newBehavior = BehaviorEntry(
@@ -73,17 +65,17 @@ class _CreateUpdateBehaviorState extends State<CreateUpdateBehavior> {
           userRef: currentUserUid,
           created: created,
           isPublic: _isPublic,
+          profile: _selectedProfileId ?? profileState.profile?.id,
         );
         await _repository.addBehavior(newBehavior);
       } else {
-        print('updated ${created}');
         // Update existing behavior
         final updatedBehavior = widget.behaviorEntry!.copyWith(
           description: description,
           created: created,
-          profile: _selectedProfile,
           mentions: _mentions,
           isPublic: _isPublic,
+          profile: _selectedProfileId,
         );
         await _repository.updateBehavior(updatedBehavior);
       }
@@ -94,7 +86,18 @@ class _CreateUpdateBehaviorState extends State<CreateUpdateBehavior> {
 
   @override
   Widget build(BuildContext context) {
+    final profileState = ref.watch(profilesProvider);
+
+    final profiles = profileState.profiles!;
+
     bool isNewEntry = widget.behaviorEntry == null;
+
+    // If it's a new entry and no profile is selected, use the current profile
+    if (isNewEntry &&
+        _selectedProfileId == null &&
+        profileState.profile != null) {
+      _selectedProfileId = profileState.profile!.id;
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -108,13 +111,18 @@ class _CreateUpdateBehaviorState extends State<CreateUpdateBehavior> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const Text(
+                  'Analyze behaviors to what side of your personality they lean to. Attach it to a profile to see how that facet of your life is affected.',
+                ),
+                const SizedBox(height: 20),
                 TextFormField(
                   controller: _descriptionController,
                   decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Description',
-                      hintText:
-                          'Enter in something you did or an interaction you had, this works best when you write it in the first person.'),
+                    border: OutlineInputBorder(),
+                    labelText: 'Description',
+                    hintText:
+                        'Enter in something you did or an interaction you had, this works best when you write it in the first person.',
+                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Required';
@@ -124,58 +132,59 @@ class _CreateUpdateBehaviorState extends State<CreateUpdateBehavior> {
                   maxLines: 3,
                 ),
                 const SizedBox(height: 20),
-                CheckboxListTile(
-                  title: const Text('Make Public'),
-                  value: _isPublic,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      _isPublic = value ?? false;
-                    });
-                  },
-                  controlAffinity: ListTileControlAffinity.leading,
-                ),
-                if (!isNewEntry) ...[
-                  const SizedBox(height: 20),
-                  TextFormField(
-                    controller: _dateController,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Date',
-                      suffixIcon: Icon(Icons.calendar_today),
-                    ),
-                    readOnly: true,
-                    onTap: () async {
-                      DateTime? pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: DateFormat('yyyy-MM-dd')
-                            .parse(_dateController.text),
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(2101),
-                      );
-                      if (pickedDate != null) {
-                        String formattedDate =
-                            DateFormat('yyyy-MM-dd').format(pickedDate);
-                        setState(() {
-                          _dateController.text = formattedDate;
-                        });
-                      }
-                    },
+                // CheckboxListTile(
+                //   title: const Text('Make Public'),
+                //   value: _isPublic,
+                //   onChanged: (bool? value) {
+                //     setState(() {
+                //       _isPublic = value ?? false;
+                //     });
+                //   },
+                //   controlAffinity: ListTileControlAffinity.leading,
+                // ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: _dateController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Date',
+                    suffixIcon: Icon(Icons.calendar_today),
                   ),
-                  const SizedBox(height: 20),
+                  readOnly: true,
+                  onTap: () async {
+                    DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate:
+                          DateFormat('yyyy-MM-dd').parse(_dateController.text),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2101),
+                    );
+                    if (pickedDate != null) {
+                      String formattedDate =
+                          DateFormat('yyyy-MM-dd').format(pickedDate);
+                      setState(() {
+                        _dateController.text = formattedDate;
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 20),
+                if (profiles.isNotEmpty)
                   DropdownButtonFormField<String>(
                     decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Select Profile'),
-                    value: _selectedProfile,
-                    items: _profiles.map((String profile) {
+                      border: OutlineInputBorder(),
+                      labelText: 'Select Profile',
+                    ),
+                    value: _selectedProfileId,
+                    items: profiles.map((Profile profile) {
                       return DropdownMenuItem<String>(
-                        value: profile,
-                        child: Text(profile),
+                        value: profile.id,
+                        child: Text(profile.name),
                       );
                     }).toList(),
                     onChanged: (String? newValue) {
                       setState(() {
-                        _selectedProfile = newValue;
+                        _selectedProfileId = newValue;
                       });
                     },
                     validator: (value) {
@@ -186,10 +195,14 @@ class _CreateUpdateBehaviorState extends State<CreateUpdateBehavior> {
                     },
                     isExpanded: true,
                   ),
+                if (!isNewEntry) ...[
                   const SizedBox(height: 20),
                   TextFormField(
                     decoration: const InputDecoration(
-                        border: OutlineInputBorder(), labelText: 'Mentions'),
+                      border: OutlineInputBorder(),
+                      labelText: 'Mentions',
+                      hintText: 'Enter in a comma-separated list of mentions',
+                    ),
                     onChanged: (value) {
                       setState(() {
                         _mentions = value

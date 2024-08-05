@@ -122,10 +122,14 @@ class _BehaviorViewState extends State<BehaviorView>
           Text(widget.behaviorEntry?.description ?? "",
               style:
                   const TextStyle(fontSize: 16, fontStyle: FontStyle.italic)),
+          const SizedBox(height: 30),
           const Divider(),
+          const SizedBox(height: 30),
           if (widget.behaviorEntry != null &&
               widget.behaviorEntry!.suggestion != null)
             _buildSuggestion(widget.behaviorEntry!.suggestion!),
+          const SizedBox(height: 30),
+          const Divider(),
           const SizedBox(height: 30),
           widget.behaviorEntry != null &&
                   widget.behaviorEntry!.traitScores != null
@@ -152,6 +156,7 @@ class _BehaviorViewState extends State<BehaviorView>
           'Suggestion',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
+        const SizedBox(height: 16),
         Text(suggestion)
       ],
     );

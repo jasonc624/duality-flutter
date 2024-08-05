@@ -14,9 +14,6 @@ class _ProfileListWidgetState extends ConsumerState<ProfileListWidget> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(profilesProvider.notifier).loadAllProfiles();
-    });
   }
 
   @override

@@ -1,25 +1,43 @@
 import 'package:duality/src/behavior_entry_feature/behavior_list.dart';
+import 'package:duality/src/login_page/login_page.dart';
 import 'package:duality/src/navigation_drawer/side_navigation.dart';
 
 import 'package:flutter/material.dart';
 import '../behavior_entry_feature/create_update_behavior.dart';
 
+import '../providers/profileState.dart';
 import 'timeline/bg_timeline.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 // Riverpod;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MyHomePage extends ConsumerWidget {
+class MyHomePage extends ConsumerStatefulWidget {
   const MyHomePage({super.key});
-  final String title = 'Polarity';
+
   static const routeName = '/home';
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends ConsumerState<MyHomePage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(profilesProvider.notifier).loadAllProfiles();
+    });
+  }
 
   Future<void> logout() async {
     try {
       await FirebaseAuth.instance.signOut();
       // Optional: Navigate to login screen or show a success message
       // print('User logged out successfully');
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+        builder: (context) => const LoginScreen(),
+      ));
+      setState(() {});
     } catch (e) {
       // print('Error during logout: $e');
       // Optional: Show an error message to the user
@@ -67,7 +85,7 @@ class MyHomePage extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     User? firebaseUser = FirebaseAuth.instance.currentUser;
     String currentUserUid = firebaseUser?.uid ?? '';
     // Get profiles for the current user
@@ -76,7 +94,7 @@ class MyHomePage extends ConsumerWidget {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(title),
+        title: Text('Polarity'),
       ),
       drawer: SideNavigation(
         firebaseUser: firebaseUser,
