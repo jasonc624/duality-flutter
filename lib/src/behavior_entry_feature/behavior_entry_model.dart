@@ -29,7 +29,7 @@ class BehaviorEntry {
   final DateTime updated;
   final bool? isPublic;
   final String? suggestion;
-  final double? overall_score;
+  final num? overall_score; // Changed to num to allow both int and double
   final List<Disorder>? disorders;
 
   factory BehaviorEntry.fromFirestore(DocumentSnapshot doc) {
@@ -48,7 +48,7 @@ class BehaviorEntry {
       created: (data['created'] as Timestamp?)?.toDate(),
       updated: (data['updated'] as Timestamp?)?.toDate(),
       suggestion: data['suggestion'] as String?,
-      overall_score: data['overall_score'] as double?,
+      overall_score: data['overall_score'] as num?, // Changed to num
       disorders: (data['disorders'] as List<dynamic>?)
           ?.map((e) => Disorder.fromMap(e as Map<String, dynamic>))
           .toList(),
@@ -92,7 +92,7 @@ class BehaviorEntry {
     DateTime? updated,
     bool? isPublic,
     String? suggestion,
-    double? overall_score,
+    num? overall_score, // Changed to num
     List<Disorder>? disorders,
   }) {
     return BehaviorEntry(
@@ -122,6 +122,7 @@ class BehaviorEntry {
   }
 }
 
+// Disorder class remains unchanged
 class Disorder {
   final String name;
   final String reason;
@@ -129,7 +130,6 @@ class Disorder {
 
   Disorder({required this.name, required this.reason, required this.score});
 
-  // Factory constructor to create a Disorder from a map
   factory Disorder.fromMap(Map<String, dynamic> map) {
     return Disorder(
       name: map['name'] as String,
@@ -138,7 +138,6 @@ class Disorder {
     );
   }
 
-  // Method to convert Disorder to a map
   Map<String, dynamic> toMap() {
     return {
       'name': name,

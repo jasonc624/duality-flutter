@@ -1,8 +1,8 @@
 const { initializeApp } = require('firebase-admin/app');
 const functions = require("firebase-functions");
 const { getFirestore, Timestamp } = require('firebase-admin/firestore');
-initializeApp();
 
+initializeApp();
 
 const db = getFirestore();
 db.settings({ ignoreUndefinedProperties: true });
@@ -26,10 +26,13 @@ export async function updateBehavior(id: string, data: any) {
     delete onlyTraitData.mentions;
     delete onlyTraitData.suggestion;
     delete onlyTraitData.overall_score;
-
+    if (data.mentions && data.mentions.length) {
+        data.mentions = normalizeMentions(data.mentions);
+    }
     // Flatten the data object
     const flattenedData = {
         id,
+        description: data.description,
         title: data.title,
         mentions: data?.mentions,
         suggestion: data?.suggestion,
@@ -39,7 +42,26 @@ export async function updateBehavior(id: string, data: any) {
         disorders: onlyDisorders
     };
     await db.collection('behaviors').doc(id).update(flattenedData, { merge: true });
+    return flattenedData;
 }
 export async function deleteBehavior(id: string): Promise<any> {
     await db.collection('behaviors').doc(id).delete();
+}
+
+function normalizeMentions(mentions: string[]): string[] {
+    // Convert to lowercase and remove duplicates
+    return [...new Set(mentions.map(mention => mention.toLowerCase()))];
+}
+
+export type Behavior = {
+    id: string;
+    created?: any;
+    updated: any;
+    title?: string;
+    description: string;
+    suggestion?: string;
+    overall_score: number;
+    traitScores: any;
+    mentions?: string[];
+    disorders?: any[];
 }

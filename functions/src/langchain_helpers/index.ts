@@ -1,35 +1,36 @@
 const functions = require('firebase-functions');
-import { FunctionDeclarationSchemaType, GenerativeModel, GoogleGenerativeAI } from "@google/generative-ai";
+
+import { FunctionDeclarationSchemaType, GoogleGenerativeAI } from "@google/generative-ai";
+import { Behavior } from "../firestore_helpers/behavior";
 const genAI = new GoogleGenerativeAI("AIzaSyDlP77_zfPOixhygxfqCrcQM5q2LJHckAY");
 
 
-export async function formatBehavior(behavior: any): Promise<[]> {
+export async function formatBehavior(behavior: Behavior): Promise<[]> {
     functions.logger.log('Behavior to format:', behavior);
     const behaviorText = behavior?.description;
-    const safe: any[] = [
+    // const safe: any[] = [
 
 
-        {
-            "category": "HARM_CATEGORY_HARASSMENT",
-            "threshold": "BLOCK_NONE",
-        },
-        {
-            "category": "HARM_CATEGORY_HATE_SPEECH",
-            "threshold": "BLOCK_NONE",
-        },
-        {
-            "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-            "threshold": "BLOCK_NONE",
-        },
-        {
-            "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-            "threshold": "BLOCK_NONE",
-        },
-    ]
+    //     {
+    //         "category": "HARM_CATEGORY_HARASSMENT",
+    //         "threshold": "BLOCK_NONE",
+    //     },
+    //     {
+    //         "category": "HARM_CATEGORY_HATE_SPEECH",
+    //         "threshold": "BLOCK_NONE",
+    //     },
+    //     {
+    //         "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+    //         "threshold": "BLOCK_NONE",
+    //     },
+    //     {
+    //         "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+    //         "threshold": "BLOCK_NONE",
+    //     },
+    // ]
     functions.logger.log(behaviorText);
     const model = genAI.getGenerativeModel({
         model: "gemini-1.5-flash",
-        safetySettings: safe,
         generationConfig: {
             responseMimeType: "application/json",
             responseSchema: {
@@ -71,9 +72,6 @@ export async function formatBehavior(behavior: any): Promise<[]> {
                         },
                         suggestion: {
                             type: FunctionDeclarationSchemaType.STRING,
-                        },
-                        overall_score: {
-                            type: FunctionDeclarationSchemaType.NUMBER,
                         },
                         compassionate_callous: {
                             type: FunctionDeclarationSchemaType.NUMBER,

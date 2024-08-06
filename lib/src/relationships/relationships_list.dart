@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'relationship_model.dart';
+import 'relationship_view.dart';
 
 class RelationshipsPage extends StatelessWidget {
   static const routeName = '/relationships';
@@ -71,7 +72,11 @@ class RelationshipsPage extends StatelessWidget {
   void _onRelationshipTap(BuildContext context, Relationship relationship) {
     // Navigate to relationship detail/edit page
     print('Tapped on ${relationship.name}');
-    // You can implement navigation to a detail page here
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => RelationshipView(relationship: relationship),
+      ),
+    );
   }
 
   void _addRelationship(BuildContext context, String userId) async {

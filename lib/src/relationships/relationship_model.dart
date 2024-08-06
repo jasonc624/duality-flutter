@@ -3,44 +3,58 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Relationship {
   final String id;
   final String name;
-  final String? type;
-  final List<String> tags;
-  final List<String> profiles;
-  final String? notes;
-  final Map<String, dynamic>? metadata;
-  final Map<String, dynamic>? current_standing;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  String? type;
+  List<String> tags;
+  List<String> profiles;
+  String? notes;
+  Map<String, dynamic>? current_standing;
+  DateTime createdAt;
+  DateTime updatedAt;
+  Map<String, dynamic> metadata;
 
-  Relationship(
-      {required this.id,
-      required this.name,
-      this.type,
-      this.tags = const [],
-      this.profiles = const [],
-      this.notes,
-      this.metadata,
-      this.current_standing,
-      DateTime? createdAt,
-      DateTime? updatedAt})
-      : createdAt = createdAt ?? DateTime.now(),
-        updatedAt = updatedAt ?? DateTime.now();
-
-  // Create a Relationship object from a Firestore document
+  Relationship({
+    required this.id,
+    required this.name,
+    this.type,
+    List<String>? tags,
+    List<String>? profiles,
+    this.notes,
+    this.current_standing,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Map<String, dynamic>? metadata,
+  })  : this.tags = tags ?? [],
+        this.profiles = profiles ?? [],
+        this.createdAt = createdAt ?? DateTime.now(),
+        this.updatedAt = updatedAt ?? DateTime.now(),
+        this.metadata = metadata ??
+            {
+              'traitScores': {
+                'compassionate_callous': 0,
+                'honest_deceitful': 0,
+                'courageous_cowardly': 0,
+                'ambitious_lazy': 0,
+                'generous_greedy': 0,
+                'patient_impatient': 0,
+                'humble_arrogant': 0,
+                'loyal_disloyal': 0,
+                'optimistic_pessimistic': 0,
+                'responsible_irresponsible': 0
+              }
+            };
   factory Relationship.fromFirestore(DocumentSnapshot doc) {
-    Map data = doc.data() as Map<String, dynamic>;
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
     return Relationship(
       id: doc.id,
-      name: data['name'] ?? '',
+      name: data['name'],
       type: data['type'],
       tags: List<String>.from(data['tags'] ?? []),
       profiles: List<String>.from(data['profiles'] ?? []),
       notes: data['notes'],
-      metadata: data['metadata'],
-      current_standing: data['current_standing'] ??
-          const {'emoji': 'smile', 'summary': 'Currently a new relationship'},
+      current_standing: data['current_standing'],
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       updatedAt: (data['updatedAt'] as Timestamp).toDate(),
+      metadata: data['metadata'],
     );
   }
 
@@ -52,10 +66,10 @@ class Relationship {
       'tags': tags,
       'profiles': profiles,
       'notes': notes,
-      'metadata': metadata,
       'current_standing': current_standing,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
+      'metadata': metadata,
     };
   }
 
