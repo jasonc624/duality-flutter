@@ -25,19 +25,27 @@ exports.behavior_added = (0, firestore_1.onDocumentCreated)("behaviors/{behavior
             await (0, behavior_1.deleteBehavior)(behaviorId);
             throw new functions.https.HttpsError("failed-precondition", error);
         });
+        if (!formattedData) {
+            await (0, behavior_1.deleteBehavior)(behaviorId);
+            throw new Error('Formatted data is undefined');
+        }
         const userDocRef = await db.collection('users').doc(snapshot.data().userRef);
         const userDoc = await userDocRef.get();
         const userData = userDoc.data();
-        functions.logger.log('Is User Data defined?', userData);
+        functions.logger.log('Is User Data defined?', !!userData);
+        if (!userData) {
+            throw new Error('User data is undefined');
+        }
+        // Update the behavior document with new data
         const updatedData = await (0, behavior_1.updateBehavior)(behaviorId, formattedData);
-        if ((updatedData === null || updatedData === void 0 ? void 0 : updatedData.mentions) && ((_a = updatedData === null || updatedData === void 0 ? void 0 : updatedData.mentions) === null || _a === void 0 ? void 0 : _a.length)) {
+        if ((updatedData === null || updatedData === void 0 ? void 0 : updatedData.mentions) && ((_a = updatedData === null || updatedData === void 0 ? void 0 : updatedData.mentions) === null || _a === void 0 ? void 0 : _a.length) > 0) {
             // Find existing relationships with the mentioned users
             const existingRelationships = await (0, relationships_1.findExistingRelationship)(updatedData === null || updatedData === void 0 ? void 0 : updatedData.mentions, userData.uid);
             if (existingRelationships.length) {
                 functions.logger.log('Found existing relationships', existingRelationships);
                 existingRelationships.forEach(async (relationship) => {
                     // Look at existing relationship metadata and update the scores
-                    const newMetadata = (0, relationships_1.updateBehaviorTraits)((relationship === null || relationship === void 0 ? void 0 : relationship.metadata) || null, formattedData.traitScores);
+                    const newMetadata = (0, relationships_1.updateBehaviorTraits)(relationship === null || relationship === void 0 ? void 0 : relationship.metadata, updatedData.traitScores);
                     userDocRef.collection('relationships').doc(relationship.id).update({
                         metadata: newMetadata
                     }, { merge: true });
@@ -47,10 +55,7 @@ exports.behavior_added = (0, firestore_1.onDocumentCreated)("behaviors/{behavior
                 functions.logger.log('No existing relationships found');
                 const lastSelectedProfileId = userData === null || userData === void 0 ? void 0 : userData.last_selected_profile;
                 functions.logger.log('lastSelectedProfileId', lastSelectedProfileId);
-                // const profileRef = await userDocRef.collection('profiles').doc(lastSelectedProfileId).get();
                 const profilesArr = lastSelectedProfileId ? [lastSelectedProfileId] : [];
-                //  Create a new relationship for each mention
-                // TOOD: Add check to see if user wants new relationships to be created for them.
                 functions.logger.log('mentions to loop over', updatedData === null || updatedData === void 0 ? void 0 : updatedData.mentions);
                 updatedData === null || updatedData === void 0 ? void 0 : updatedData.mentions.forEach(async (mention) => {
                     const collectionRef = await db.collection('users').doc(snapshot.data().userRef).collection('relationships');
@@ -58,14 +63,14 @@ exports.behavior_added = (0, firestore_1.onDocumentCreated)("behaviors/{behavior
                     // Create a new relationship
                     const newRelationship = {
                         id: newRelationshipRef.id,
-                        created: firestore_2.Timestamp.now(),
-                        updated: firestore_2.Timestamp.now(),
+                        createdAt: firestore_2.Timestamp.now(),
+                        updatedAt: firestore_2.Timestamp.now(),
                         type: 'unknown',
                         name: mention,
                         profiles: profilesArr,
                         notes: formattedData.description,
-                        tags: formattedData.mentions,
-                        metadata: (0, relationships_1.updateBehaviorTraits)(null, formattedData.traitScores),
+                        tags: [mention],
+                        metadata: (0, relationships_1.updateBehaviorTraits)(null, updatedData.traitScores),
                         current_standing: { emoji: '', summary: 'No summary yet.' }
                     };
                     await collectionRef.doc(newRelationship.id).set(newRelationship);
@@ -75,6 +80,7 @@ exports.behavior_added = (0, firestore_1.onDocumentCreated)("behaviors/{behavior
         return updatedData;
     }
     catch (error) {
+        functions.logger.error('Error in behavior_added function:', error);
         throw new functions.https.HttpsError("failed-precondition", error);
     }
 });

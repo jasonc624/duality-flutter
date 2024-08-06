@@ -25,20 +25,29 @@ exports.behavior_added = onDocumentCreated("behaviors/{behaviorId}", async (even
             await deleteBehavior(behaviorId);
             throw new functions.https.HttpsError("failed-precondition", error);
         });
+        if (!formattedData) {
+            await deleteBehavior(behaviorId);
+            throw new Error('Formatted data is undefined');
+        }
 
         const userDocRef = await db.collection('users').doc(snapshot.data().userRef);
         const userDoc = await userDocRef.get()
         const userData = userDoc.data();
-        functions.logger.log('Is User Data defined?', userData);
+        functions.logger.log('Is User Data defined?', !!userData);
+
+        if (!userData) {
+            throw new Error('User data is undefined');
+        }
+        // Update the behavior document with new data
         const updatedData: Behavior = await updateBehavior(behaviorId, formattedData);
-        if (updatedData?.mentions && updatedData?.mentions?.length) {
+        if (updatedData?.mentions && updatedData?.mentions?.length > 0) {
             // Find existing relationships with the mentioned users
             const existingRelationships: Relationship[] = await findExistingRelationship(updatedData?.mentions, userData.uid);
             if (existingRelationships.length) {
                 functions.logger.log('Found existing relationships', existingRelationships);
                 existingRelationships.forEach(async (relationship: Relationship) => {
                     // Look at existing relationship metadata and update the scores
-                    const newMetadata = updateBehaviorTraits(relationship?.metadata || null, formattedData.traitScores);
+                    const newMetadata = updateBehaviorTraits(relationship?.metadata, updatedData.traitScores);
                     userDocRef.collection('relationships').doc(relationship.id).update({
                         metadata: newMetadata
                     }, { merge: true });
@@ -47,10 +56,7 @@ exports.behavior_added = onDocumentCreated("behaviors/{behaviorId}", async (even
                 functions.logger.log('No existing relationships found');
                 const lastSelectedProfileId = userData?.last_selected_profile;
                 functions.logger.log('lastSelectedProfileId', lastSelectedProfileId);
-                // const profileRef = await userDocRef.collection('profiles').doc(lastSelectedProfileId).get();
                 const profilesArr = lastSelectedProfileId ? [lastSelectedProfileId] : [];
-                //  Create a new relationship for each mention
-                // TOOD: Add check to see if user wants new relationships to be created for them.
                 functions.logger.log('mentions to loop over', updatedData?.mentions);
                 updatedData?.mentions.forEach(async (mention: string) => {
                     const collectionRef = await db.collection('users').doc(snapshot.data().userRef).collection('relationships');
@@ -58,14 +64,14 @@ exports.behavior_added = onDocumentCreated("behaviors/{behaviorId}", async (even
                     // Create a new relationship
                     const newRelationship: any = {
                         id: newRelationshipRef.id,
-                        created: Timestamp.now(),
-                        updated: Timestamp.now(),
+                        createdAt: Timestamp.now(),
+                        updatedAt: Timestamp.now(),
                         type: 'unknown',
                         name: mention,
                         profiles: profilesArr,
                         notes: formattedData.description,
-                        tags: formattedData.mentions,
-                        metadata: updateBehaviorTraits(null, formattedData.traitScores),
+                        tags: [mention],
+                        metadata: updateBehaviorTraits(null, updatedData.traitScores),
                         current_standing: { emoji: '', summary: 'No summary yet.' }
                     };
                     await collectionRef.doc(newRelationship.id).set(newRelationship);
@@ -75,6 +81,7 @@ exports.behavior_added = onDocumentCreated("behaviors/{behaviorId}", async (even
         }
         return updatedData;
     } catch (error) {
+        functions.logger.error('Error in behavior_added function:', error);
         throw new functions.https.HttpsError("failed-precondition", error);
     }
 });
