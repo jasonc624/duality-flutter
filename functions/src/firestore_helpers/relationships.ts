@@ -11,7 +11,7 @@ export type Relationship = {
     notes: string;
     tags: string[];
     metadata: any;
-    current_standing: any;
+    current_standing: { emoji: string, summary: string };
 }
 export async function findExistingRelationship(mentions: string[], userId: string): Promise<Relationship[]> {
     const db = getFirestore();
@@ -71,51 +71,36 @@ interface RelationshipMetadata {
 
 
 export function updateBehaviorTraits(metadata: RelationshipMetadata | null, newTraits: TraitScores): RelationshipMetadata {
-    functions.logger.log('updateBehaviorTraits', metadata, newTraits);
-    if (metadata === null) {
-        metadata = {
-            traitScores: {
-                compassionate_callous: 0,
-                honest_deceitful: 0,
-                courageous_cowardly: 0,
-                ambitious_lazy: 0,
-                generous_greedy: 0,
-                patient_impatient: 0,
-                humble_arrogant: 0,
-                loyal_disloyal: 0,
-                optimistic_pessimistic: 0,
-                responsible_irresponsible: 0
-            }
-        };
-    }
-    const updatedMetadata = { ...metadata };
-    functions.logger.log('updatedMetadata', updatedMetadata);
-    if (!updatedMetadata?.traitScores) {
-        updatedMetadata.traitScores = {
-            compassionate_callous: 0,
-            honest_deceitful: 0,
-            courageous_cowardly: 0,
-            ambitious_lazy: 0,
-            generous_greedy: 0,
-            patient_impatient: 0,
-            humble_arrogant: 0,
-            loyal_disloyal: 0,
-            optimistic_pessimistic: 0,
-            responsible_irresponsible: 0
-        }
-    }
+    const defaultTraitScores: TraitScores = {
+        compassionate_callous: 0,
+        honest_deceitful: 0,
+        courageous_cowardly: 0,
+        ambitious_lazy: 0,
+        generous_greedy: 0,
+        patient_impatient: 0,
+        humble_arrogant: 0,
+        loyal_disloyal: 0,
+        optimistic_pessimistic: 0,
+        responsible_irresponsible: 0
+    };
 
-    for (const [trait, value] of Object.entries(newTraits)) {
-        if (value !== undefined && !trait.endsWith('_reason')) {
-            const currentValue = updatedMetadata.traitScores[trait as keyof TraitScores] || 0;
-            let newValue = currentValue + value;
+    const updatedMetadata: RelationshipMetadata = {
+        traitScores: metadata?.traitScores ?? { ...defaultTraitScores }
+    };
 
-            // Ensure the value stays within -5 to 5 range
-            newValue = Math.max(-5, Math.min(5, newValue));
-
+    Object.entries(newTraits).forEach(([trait, value]) => {
+        if (typeof value === 'number' && !trait.endsWith('_reason')) {
+            const currentValue = updatedMetadata.traitScores[trait as keyof TraitScores] ?? 0;
+            const newValue = currentValue + value;
             updatedMetadata.traitScores[trait as keyof TraitScores] = newValue;
+
+            // Optional: Log if the absolute value exceeds a certain threshold
+            if (Math.abs(newValue) > 100) {  // Example threshold
+                functions.logger.warn(`High trait score detected: ${trait} = ${newValue}`);
+            }
         }
-    }
-    functions.logger.log('returning', updatedMetadata);
+    });
+
+    functions.logger.log('updateBehaviorTraits result:', updatedMetadata);
     return updatedMetadata;
 }

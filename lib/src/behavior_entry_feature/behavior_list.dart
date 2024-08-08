@@ -31,19 +31,15 @@ class BehaviorListView extends ConsumerWidget {
       stream: _repository.getBehaviorsByDate(_selectedDate, userRef),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          print('Error: ${snapshot.error}');
           return Text('An error occurred.');
         }
         if (snapshot.connectionState == ConnectionState.waiting) {
-          print('waiting');
           return const Center(child: CircularProgressIndicator());
         }
 
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
           print('no data in snapshot');
-          return Center(
-              child: Text(
-                  'No behaviors for ${_selectedDate.toString().split(' ')[0]}'));
+          return const Center(child: Text('Whats going on in your day?'));
         }
 
         return ListView.separated(

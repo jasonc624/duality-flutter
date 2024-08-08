@@ -5,11 +5,11 @@ import 'package:duality/src/navigation_drawer/side_navigation.dart';
 import 'package:flutter/material.dart';
 import '../behavior_entry_feature/create_update_behavior.dart';
 
-import '../providers/profileState.dart';
 import 'timeline/bg_timeline.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 // Riverpod;
-
+import '../providers/speechState.dart';
+import '../providers/profileState.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MyHomePage extends ConsumerStatefulWidget {
@@ -25,6 +25,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(textToSpeechProvider.notifier);
       ref.read(profilesProvider.notifier).loadAllProfiles();
     });
   }

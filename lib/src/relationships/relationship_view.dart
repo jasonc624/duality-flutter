@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:animated_emoji/animated_emoji.dart';
 
+import 'create_update_relationship.dart';
 import 'relationship_model.dart';
 
 class RelationshipView extends StatefulWidget {
@@ -48,6 +49,15 @@ class _RelationshipViewState extends State<RelationshipView> {
     }
   }
 
+  void _editRelationship(BuildContext context, Relationship relationship) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) =>
+            CreateUpdateRelationship(relationship: relationship),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     String emoji = widget.relationship.current_standing?['emoji'] ?? 'neutral';
@@ -56,10 +66,18 @@ class _RelationshipViewState extends State<RelationshipView> {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text('Relationship with'),
+          title: const Text('Relationship with'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () {
+                _editRelationship(context, widget.relationship);
+              },
+            ),
+          ],
         ),
         body: Card(
-          margin: EdgeInsets.all(8.0),
+          margin: const EdgeInsets.all(0),
           child: Column(
             children: [
               // Top fold with background image, name, and animated emoji
@@ -91,8 +109,8 @@ class _RelationshipViewState extends State<RelationshipView> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            widget.relationship.name,
-                            style: TextStyle(
+                            widget.relationship.name.toUpperCase(),
+                            style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
@@ -100,8 +118,8 @@ class _RelationshipViewState extends State<RelationshipView> {
                           ),
                           SizedBox(height: 10),
                           SizedBox(
-                            width: 50,
-                            height: 50,
+                            width: 60,
+                            height: 60,
                             child: _getAnimatedEmoji(emoji),
                           ),
                         ],
@@ -111,18 +129,9 @@ class _RelationshipViewState extends State<RelationshipView> {
                 ),
               ),
 
-              // Current standing summary
-              Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text(
-                  summary,
-                  style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
-                ),
-              ),
-
               // Expand/collapse button
               ListTile(
-                title: Text(
+                title: const Text(
                   'Details',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
@@ -140,7 +149,7 @@ class _RelationshipViewState extends State<RelationshipView> {
               // Expandable content
               if (_isExpanded) ...[
                 Padding(
-                  padding: EdgeInsets.all(16.0),
+                  padding: EdgeInsets.all(0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -162,6 +171,14 @@ class _RelationshipViewState extends State<RelationshipView> {
                   ),
                 ),
               ],
+              // Current standing summary
+              Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text(
+                  summary,
+                  style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
+                ),
+              ),
             ],
           ),
         ));

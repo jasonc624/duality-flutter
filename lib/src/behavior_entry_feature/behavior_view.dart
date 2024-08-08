@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import '../charts/radar.dart';
+import '../providers/speechState.dart';
+import '../speech_widget/tts.dart';
 import '../traits/trait_score_view.dart';
 import 'behavior_entry_model.dart';
 import 'create_update_behavior.dart';
-import 'repository_behavior.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class BehaviorView extends StatefulWidget {
@@ -115,21 +118,33 @@ class _BehaviorViewState extends State<BehaviorView>
     return SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 16.0),
         child: Column(children: [
+          Text(
+            widget.behaviorEntry?.created != null
+                ? DateFormat('MMM d, yyyy h:mm a')
+                    .format(widget.behaviorEntry!.created)
+                : "No date",
+          ),
           Text(widget.behaviorEntry?.title ?? 'Untitled ',
               style:
                   const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
-          Text(widget.behaviorEntry?.description ?? "",
-              style:
-                  const TextStyle(fontSize: 16, fontStyle: FontStyle.italic)),
-          const SizedBox(height: 30),
-          const Divider(),
+          Card(
+            color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(widget.behaviorEntry?.description ?? "",
+                  style: const TextStyle(
+                      fontSize: 16, fontStyle: FontStyle.italic)),
+            ),
+          ),
+          SpeakTextWidget(
+              textToSpeak:
+                  widget.behaviorEntry!.description ?? 'No Text Here To Speak'),
           const SizedBox(height: 30),
           if (widget.behaviorEntry != null &&
-              widget.behaviorEntry!.suggestion != null)
+              widget.behaviorEntry!.suggestion != null &&
+              widget.behaviorEntry!.suggestion!.isNotEmpty)
             _buildSuggestion(widget.behaviorEntry!.suggestion!),
-          const SizedBox(height: 30),
-          const Divider(),
           const SizedBox(height: 30),
           widget.behaviorEntry != null &&
                   widget.behaviorEntry!.traitScores != null
@@ -152,12 +167,24 @@ class _BehaviorViewState extends State<BehaviorView>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const Divider(),
+        const SizedBox(height: 30),
         const Text(
           'Suggestion',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
-        Text(suggestion)
+        Card(
+          color: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(suggestion, style: const TextStyle(fontSize: 16)),
+          ),
+        ),
+        const SizedBox(height: 16),
+        SpeakTextWidget(textToSpeak: suggestion ?? 'No Text Here To Speak'),
+        const SizedBox(height: 30),
+        const Divider(),
       ],
     );
   }

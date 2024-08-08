@@ -49,12 +49,6 @@ class BehaviorRepository {
       List<BehaviorEntry> behaviors =
           snapshot.docs.map((doc) => BehaviorEntry.fromFirestore(doc)).toList();
 
-      // Optional: Keep the debug print if needed
-      // behaviors.forEach((behavior) {
-      //   print(
-      //       'Behavior: ${behavior.title}, ${behavior.description}, Created: ${behavior.created}');
-      // });
-
       return behaviors;
     });
   }
@@ -65,6 +59,9 @@ class BehaviorRepository {
       throw Exception('Cannot update an entry without an ID');
     }
     await _collection.doc(entry.id).update({
+      'created': entry.created,
+      'mentions': entry.mentions,
+      'profile': entry.profile,
       'description': entry.description,
       'updated': FieldValue.serverTimestamp(),
     });

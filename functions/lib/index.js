@@ -39,28 +39,33 @@ exports.behavior_added = (0, firestore_1.onDocumentCreated)("behaviors/{behavior
         // Update the behavior document with new data
         const updatedData = await (0, behavior_1.updateBehavior)(behaviorId, formattedData);
         if ((updatedData === null || updatedData === void 0 ? void 0 : updatedData.mentions) && ((_a = updatedData === null || updatedData === void 0 ? void 0 : updatedData.mentions) === null || _a === void 0 ? void 0 : _a.length) > 0) {
+            functions.logger.log('This behavior mentioned:', updatedData.mentions);
             // Find existing relationships with the mentioned users
             const existingRelationships = await (0, relationships_1.findExistingRelationship)(updatedData === null || updatedData === void 0 ? void 0 : updatedData.mentions, userData.uid);
             if (existingRelationships.length) {
                 functions.logger.log('Found existing relationships', existingRelationships);
                 existingRelationships.forEach(async (relationship) => {
+                    functions.logger.log('Updating this relationship', relationship.name);
                     // Look at existing relationship metadata and update the scores
                     const newMetadata = (0, relationships_1.updateBehaviorTraits)(relationship === null || relationship === void 0 ? void 0 : relationship.metadata, updatedData.traitScores);
+                    relationship.metadata = newMetadata;
+                    relationship.current_standing = await (0, langchain_helpers_1.formatRelationship)(relationship);
                     userDocRef.collection('relationships').doc(relationship.id).update({
-                        metadata: newMetadata
+                        metadata: newMetadata,
+                        current_standing: relationship === null || relationship === void 0 ? void 0 : relationship.current_standing
                     }, { merge: true });
                 });
             }
             else {
-                functions.logger.log('No existing relationships found');
+                functions.logger.log('No existing relationships found, lets create one');
                 const lastSelectedProfileId = userData === null || userData === void 0 ? void 0 : userData.last_selected_profile;
-                functions.logger.log('lastSelectedProfileId', lastSelectedProfileId);
+                functions.logger.log('creating under this profile:', lastSelectedProfileId);
                 const profilesArr = lastSelectedProfileId ? [lastSelectedProfileId] : [];
-                functions.logger.log('mentions to loop over', updatedData === null || updatedData === void 0 ? void 0 : updatedData.mentions);
+                functions.logger.log('create some for these mentions', updatedData === null || updatedData === void 0 ? void 0 : updatedData.mentions);
                 updatedData === null || updatedData === void 0 ? void 0 : updatedData.mentions.forEach(async (mention) => {
                     const collectionRef = await db.collection('users').doc(snapshot.data().userRef).collection('relationships');
                     const newRelationshipRef = collectionRef.doc();
-                    // Create a new relationship
+                    // Create a new relationship, no ai intervention yet.
                     const newRelationship = {
                         id: newRelationshipRef.id,
                         createdAt: firestore_2.Timestamp.now(),

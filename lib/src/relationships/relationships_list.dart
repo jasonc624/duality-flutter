@@ -1,17 +1,19 @@
 import 'package:duality/src/login_page/login_page.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'relationship_model.dart';
 import 'relationship_view.dart';
+import 'repository_relationships.dart';
 
 class RelationshipsPage extends StatelessWidget {
   static const routeName = '/relationships';
+  final RelationshipRepository _repository = RelationshipRepository();
+
   @override
   Widget build(BuildContext context) {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId == null) {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
       Navigator.restorablePushNamed(context, LoginScreen.routeName);
     }
 
@@ -19,13 +21,10 @@ class RelationshipsPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('Relationships'),
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .collection('relationships')
-            .snapshots(),
+      body: StreamBuilder<List<Relationship>>(
+        stream: _repository.getAllRelationships(),
         builder: (context, snapshot) {
+          print('builder snapshot:${snapshot.data}');
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
@@ -33,11 +32,9 @@ class RelationshipsPage extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
+          print('builder ?${snapshot.data}');
 
-          final relationships = snapshot.data?.docs
-                  .map((doc) => Relationship.fromFirestore(doc))
-                  .toList() ??
-              [];
+          final relationships = snapshot.data ?? [];
 
           return ListView.builder(
             itemCount: relationships.length,
@@ -62,7 +59,7 @@ class RelationshipsPage extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _addRelationship(context, userId.toString()),
+        onPressed: () => _addRelationship(context),
         child: Icon(Icons.add),
         tooltip: 'Add new relationship',
       ),
@@ -70,7 +67,6 @@ class RelationshipsPage extends StatelessWidget {
   }
 
   void _onRelationshipTap(BuildContext context, Relationship relationship) {
-    // Navigate to relationship detail/edit page
     print('Tapped on ${relationship.name}');
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -79,8 +75,7 @@ class RelationshipsPage extends StatelessWidget {
     );
   }
 
-  void _addRelationship(BuildContext context, String userId) async {
-    // This is a simple dialog to add a new relationship
+  void _addRelationship(BuildContext context) async {
     final TextEditingController nameController = TextEditingController();
     final TextEditingController typeController = TextEditingController();
 
@@ -110,7 +105,7 @@ class RelationshipsPage extends StatelessWidget {
             onPressed: () async {
               if (nameController.text.isNotEmpty) {
                 final newRelationship = Relationship(
-                  id: '', // Firestore will generate this
+                  id: '', // Repository will handle this
                   name: nameController.text,
                   type: typeController.text.isNotEmpty
                       ? typeController.text
@@ -119,12 +114,7 @@ class RelationshipsPage extends StatelessWidget {
                   updatedAt: DateTime.now(),
                 );
 
-                await FirebaseFirestore.instance
-                    .collection('users')
-                    .doc(userId)
-                    .collection('relationships')
-                    .add(newRelationship.toFirestore());
-
+                await _repository.createRelationship(newRelationship);
                 Navigator.of(context).pop();
               }
             },

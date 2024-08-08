@@ -7,10 +7,10 @@ class Relationship {
   List<String> tags;
   List<String> profiles;
   String? notes;
-  Map<String, dynamic>? current_standing;
   DateTime createdAt;
   DateTime updatedAt;
-  Map<String, dynamic> metadata;
+  Map<String, dynamic> current_standing;
+  Map<String, dynamic>? metadata;
 
   Relationship({
     required this.id,
@@ -19,14 +19,16 @@ class Relationship {
     List<String>? tags,
     List<String>? profiles,
     this.notes,
-    this.current_standing,
     DateTime? createdAt,
     DateTime? updatedAt,
+    Map<String, dynamic>? current_standing,
     Map<String, dynamic>? metadata,
   })  : this.tags = tags ?? [],
         this.profiles = profiles ?? [],
         this.createdAt = createdAt ?? DateTime.now(),
         this.updatedAt = updatedAt ?? DateTime.now(),
+        this.current_standing = current_standing ??
+            {'emoji': 'none', 'summary': 'This is a new relationship'},
         this.metadata = metadata ??
             {
               'traitScores': {
@@ -51,9 +53,10 @@ class Relationship {
       tags: List<String>.from(data['tags'] ?? []),
       profiles: List<String>.from(data['profiles'] ?? []),
       notes: data['notes'],
-      current_standing: data['current_standing'],
       createdAt: (data['createdAt'] as Timestamp).toDate(),
       updatedAt: (data['updatedAt'] as Timestamp).toDate(),
+      current_standing: data['current_standing'] ??
+          {'emoji': 'none', 'summary': 'This is a new relationship'},
       metadata: data['metadata'],
     );
   }
@@ -66,9 +69,9 @@ class Relationship {
       'tags': tags,
       'profiles': profiles,
       'notes': notes,
-      'current_standing': current_standing,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
+      'current_standing': current_standing,
       'metadata': metadata,
     };
   }
@@ -91,10 +94,27 @@ class Relationship {
       tags: tags ?? this.tags,
       profiles: profiles ?? this.profiles,
       notes: notes ?? this.notes,
-      metadata: metadata ?? this.metadata,
-      current_standing: current_standing ?? this.current_standing,
+      metadata: metadata != null ? Map.from(metadata) : this.metadata,
+      current_standing: current_standing != null
+          ? Map.from(current_standing)
+          : this.current_standing,
       createdAt: createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  String get currentStandingEmoji => current_standing['emoji'] as String;
+  String get currentStandingSummary => current_standing['summary'] as String;
+
+  // Update current_standing
+  Relationship updateCurrentStanding({String? emoji, String? summary}) {
+    Map<String, dynamic> newCurrentStanding = Map.from(current_standing);
+    if (emoji != null) newCurrentStanding['emoji'] = emoji;
+    if (summary != null) newCurrentStanding['summary'] = summary;
+
+    return copyWith(
+      current_standing: newCurrentStanding,
+      updatedAt: DateTime.now(),
     );
   }
 

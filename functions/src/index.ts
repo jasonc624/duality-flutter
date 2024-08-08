@@ -3,7 +3,7 @@ const functions = require("firebase-functions");
 import {
     onDocumentCreated,
 } from "firebase-functions/v2/firestore";
-import { formatBehavior } from "./langchain_helpers";
+import { formatBehavior, formatRelationship } from "./langchain_helpers";
 import { Behavior, deleteBehavior, updateBehavior } from "./firestore_helpers/behavior";
 import { findExistingRelationship, Relationship, updateBehaviorTraits } from "./firestore_helpers/relationships";
 import { Timestamp } from "firebase-admin/firestore";
@@ -41,27 +41,33 @@ exports.behavior_added = onDocumentCreated("behaviors/{behaviorId}", async (even
         // Update the behavior document with new data
         const updatedData: Behavior = await updateBehavior(behaviorId, formattedData);
         if (updatedData?.mentions && updatedData?.mentions?.length > 0) {
+            functions.logger.log('This behavior mentioned:', updatedData.mentions);
+
             // Find existing relationships with the mentioned users
             const existingRelationships: Relationship[] = await findExistingRelationship(updatedData?.mentions, userData.uid);
             if (existingRelationships.length) {
                 functions.logger.log('Found existing relationships', existingRelationships);
                 existingRelationships.forEach(async (relationship: Relationship) => {
+                    functions.logger.log('Updating this relationship', relationship.name);
                     // Look at existing relationship metadata and update the scores
                     const newMetadata = updateBehaviorTraits(relationship?.metadata, updatedData.traitScores);
+                    relationship.metadata = newMetadata;
+                    relationship.current_standing = await formatRelationship(relationship)
                     userDocRef.collection('relationships').doc(relationship.id).update({
-                        metadata: newMetadata
+                        metadata: newMetadata,
+                        current_standing: relationship?.current_standing
                     }, { merge: true });
                 });
             } else {
-                functions.logger.log('No existing relationships found');
+                functions.logger.log('No existing relationships found, lets create one');
                 const lastSelectedProfileId = userData?.last_selected_profile;
-                functions.logger.log('lastSelectedProfileId', lastSelectedProfileId);
+                functions.logger.log('creating under this profile:', lastSelectedProfileId);
                 const profilesArr = lastSelectedProfileId ? [lastSelectedProfileId] : [];
-                functions.logger.log('mentions to loop over', updatedData?.mentions);
+                functions.logger.log('create some for these mentions', updatedData?.mentions);
                 updatedData?.mentions.forEach(async (mention: string) => {
                     const collectionRef = await db.collection('users').doc(snapshot.data().userRef).collection('relationships');
                     const newRelationshipRef = collectionRef.doc();
-                    // Create a new relationship
+                    // Create a new relationship, no ai intervention yet.
                     const newRelationship: any = {
                         id: newRelationshipRef.id,
                         createdAt: Timestamp.now(),

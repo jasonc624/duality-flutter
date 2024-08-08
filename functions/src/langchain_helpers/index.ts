@@ -2,6 +2,7 @@ const functions = require('firebase-functions');
 
 import { FunctionDeclarationSchemaType, GoogleGenerativeAI } from "@google/generative-ai";
 import { Behavior } from "../firestore_helpers/behavior";
+import { Relationship } from "../firestore_helpers/relationships";
 const genAI = new GoogleGenerativeAI("AIzaSyDlP77_zfPOixhygxfqCrcQM5q2LJHckAY");
 
 
@@ -166,6 +167,72 @@ export async function formatBehavior(behavior: Behavior): Promise<[]> {
             Obsessive-Compulsive Personality Disorder
     `;
     let result = await model.generateContent(prompt)
-    functions.logger.log(result.response.text());
+    functions.logger.log("Format Behavior Result:", result.response.text());
     return JSON.parse(result.response.text());
 }
+
+export async function formatRelationship(relationship: Relationship): Promise<{ emoji: string, summary: string }> {
+    functions.logger.log(relationship);
+    if (!relationship.metadata?.traitScores) {
+        functions.logger.error('No trait scores found, returning default');
+        return { emoji: '', summary: '' };
+    }
+    const model = genAI.getGenerativeModel({
+        model: "gemini-1.5-flash",
+        generationConfig: {
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: FunctionDeclarationSchemaType.ARRAY,
+                items: {
+                    type: FunctionDeclarationSchemaType.OBJECT,
+                    properties: {
+                        emoji: {
+                            type: FunctionDeclarationSchemaType.STRING,
+                        },
+                        summary: {
+                            type: FunctionDeclarationSchemaType.STRING,
+                        },
+                    },
+                },
+            },
+        }
+    });
+    functions.logger.log('scores to analyze relationship on =>', relationship.metadata.traitScores);
+    let prompt = `
+    Parameters:
+    - Higher positive scores indicate more positive behaviors.
+    - Higher negative scores indicate more negative behaviors.
+    - 0 Indicates neutral and does not affect the overall score.
+    - The traits are paired as follows (positive_negative):
+      1. compassionate_callous
+      2. honest_deceitful
+      3. courageous_cowardly
+      4. ambitious_lazy
+      5. generous_greedy
+      6. patient_impatient
+      7. humble_arrogant
+      8. loyal_disloyal
+      9. optimistic_pessimistic
+      10. responsible_irresponsible
+    
+    Provide a concise summary (maximum 100 words) of the overall relationship dynamics from the perspective of the person that has the relationship with ${relationship.name}. 
+    Consider the balance between positive and negative behaviors, giving appropriate weight to each trait. 
+    Ensure your summary accurately reflects whether the relationship is predominantly positive, negative, or mixed based on the scores.
+    Remember these trait scores are sum values of negative and positive behaviors that were done by the user towards the person in relationship.
+    The concept of relationship is not always romantic and can be any type of relationship family, friend, colleague, etc.
+    
+    Also, select one emoji that best represents the relationship's overall tone from the following options:
+    smile, proud, sad, angry, funny, fearful, bothered, romantic, neglected, worried, liar, muscle
+    
+    Format your response as:
+    Summary: [Your 100-word analysis]
+    Emoji: [Selected emoji]
+
+    Analyze the relationship with ${relationship.name} based on the following aggregated personality trait scores:
+    ${relationship.metadata.traitScores}
+    `;
+    let result = await model.generateContent(prompt)
+    functions.logger.log("Format Relationship Result:", result.response.text());
+    return JSON.parse(result.response.text())[0];
+}
+

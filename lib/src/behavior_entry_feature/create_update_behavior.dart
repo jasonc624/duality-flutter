@@ -1,3 +1,4 @@
+import 'package:duality/src/home/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/profileState.dart';
@@ -55,7 +56,19 @@ class _CreateUpdateBehaviorState extends ConsumerState<CreateUpdateBehavior> {
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       final description = _descriptionController.text;
-      final created = DateFormat('yyyy-MM-dd').parse(_dateController.text);
+      final dateFromController =
+          DateFormat('yyyy-MM-dd').parse(_dateController.text);
+      final now = DateTime.now();
+      final created = DateTime(
+        dateFromController.year,
+        dateFromController.month,
+        dateFromController.day,
+        now.hour,
+        now.minute,
+        now.second,
+        now.millisecond,
+        now.microsecond,
+      );
       final profileState = ref.read(profilesProvider);
 
       if (widget.behaviorEntry == null) {
@@ -82,6 +95,45 @@ class _CreateUpdateBehaviorState extends ConsumerState<CreateUpdateBehavior> {
 
       Navigator.of(context).pop();
     }
+  }
+
+  Future<void> _showDeleteConfirmationDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button to close dialog
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: const SingleChildScrollView(
+            child: const ListBody(
+              children: <Widget>[
+                const Text('Are you sure you want to delete this entry?'),
+                const Text('This action cannot be undone.'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Delete'),
+              onPressed: () {
+                // Perform the delete operation here
+                _repository.deleteBehavior(widget.behaviorEntry!.id!);
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => const MyHomePage()),
+                  (Route<dynamic> route) => false,
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -235,6 +287,16 @@ class _CreateUpdateBehaviorState extends ConsumerState<CreateUpdateBehavior> {
               ],
             ),
           ),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        padding: EdgeInsets.all(16),
+        child: ElevatedButton(
+          child:
+              Text('Delete', style: TextStyle(fontSize: 18, color: Colors.red)),
+          onPressed: () {
+            _showDeleteConfirmationDialog(context);
+          },
         ),
       ),
     );

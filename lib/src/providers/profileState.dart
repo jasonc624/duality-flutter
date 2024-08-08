@@ -48,7 +48,6 @@ class Profile {
   @override
   int get hashCode => id.hashCode;
 
-  // Optionally, you can add a copyWith method for easier state updates
   Profile copyWith({
     DateTime? created,
     String? id,
