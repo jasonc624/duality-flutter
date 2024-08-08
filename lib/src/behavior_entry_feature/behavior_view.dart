@@ -141,6 +141,9 @@ class _BehaviorViewState extends State<BehaviorView>
               textToSpeak:
                   widget.behaviorEntry!.description ?? 'No Text Here To Speak'),
           const SizedBox(height: 30),
+          if (widget.behaviorEntry!.mentions!.isNotEmpty)
+            _widgetMentions(widget.behaviorEntry!.mentions!),
+          const SizedBox(height: 30),
           if (widget.behaviorEntry != null &&
               widget.behaviorEntry!.suggestion != null &&
               widget.behaviorEntry!.suggestion!.isNotEmpty)
@@ -151,6 +154,33 @@ class _BehaviorViewState extends State<BehaviorView>
               ? _buildTraitScores(widget.behaviorEntry!.traitScores!)
               : const Text('No trait scores available.'),
         ]));
+  }
+
+  Widget _widgetMentions(List<String> mentions) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          'Mentions:',
+          style: Theme.of(context)
+              .textTheme!
+              .labelMedium
+              ?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8.0,
+          runSpacing: 4.0,
+          children: mentions
+              .map((mention) => Chip(
+                    label: Text(mention),
+                    backgroundColor: Colors.deepPurple.shade700,
+                    labelStyle: TextStyle(color: Colors.white),
+                  ))
+              .toList(),
+        ),
+      ],
+    );
   }
 
   Widget _buildRadarChartTab() {

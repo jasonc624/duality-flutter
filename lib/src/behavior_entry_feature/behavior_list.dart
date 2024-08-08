@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../providers/uiState.dart';
 import 'behavior_entry_model.dart';
@@ -19,6 +20,10 @@ class BehaviorListView extends ConsumerWidget {
         builder: (context) => BehaviorView(behaviorEntry: behavior),
       ),
     );
+  }
+
+  String _formatTime(DateTime dateTime) {
+    return DateFormat('h:mm a').format(dateTime);
   }
 
   @override
@@ -51,16 +56,34 @@ class BehaviorListView extends ConsumerWidget {
             final behavior = snapshot.data![index];
             return behavior.title != null && behavior.title!.isNotEmpty
                 ? ListTile(
-                    title: Text(
-                      behavior.title ?? 'No title',
-                      maxLines: 1,
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            behavior.title ?? 'No title',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Text(
+                          _formatTime(behavior.created),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
                     ),
                     titleTextStyle: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w600),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                     subtitleTextStyle: const TextStyle(fontSize: 14),
                     subtitle: Text(
                       behavior.description,
                       maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     onTap: () => _viewBehavior(context, behavior),
                   )

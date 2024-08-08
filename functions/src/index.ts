@@ -2,10 +2,11 @@
 const functions = require("firebase-functions");
 import {
     onDocumentCreated,
+    onDocumentDeleted,
 } from "firebase-functions/v2/firestore";
 import { formatBehavior, formatRelationship } from "./langchain_helpers";
 import { Behavior, deleteBehavior, updateBehavior } from "./firestore_helpers/behavior";
-import { findExistingRelationship, Relationship, updateBehaviorTraits } from "./firestore_helpers/relationships";
+import { findExistingRelationship, Relationship, undoBehaviorTraits, updateBehaviorTraits } from "./firestore_helpers/relationships";
 import { Timestamp } from "firebase-admin/firestore";
 const { getFirestore } = require('firebase-admin/firestore');
 
@@ -92,3 +93,44 @@ exports.behavior_added = onDocumentCreated("behaviors/{behaviorId}", async (even
     }
 });
 
+exports.behavior_deleted = onDocumentDeleted("behaviors/{behaviorId}", async (event: any) => {
+    const db = getFirestore();
+    const behaviorId = event.params.behaviorId;
+    const snapshot = event.data;
+    functions.logger.info("snapshot", snapshot.data());
+    if (!snapshot) {
+        functions.logger.info("No snapshot, skipping formatting");
+        return null;
+    }
+    try {
+        const userDocRef = await db.collection('users').doc(snapshot.data().userRef);
+        const userDoc = await userDocRef.get()
+        const userData = userDoc.data();
+        functions.logger.log('Is User Data defined?', !!userData);
+
+        if (!userData) {
+            throw new Error('User data is undefined');
+        }
+        // Find relations affected by this behavior
+        // Go subtract those trait scores from the relations and recalculate the current standing
+        // TODO: Verify if this works?
+        const relationships = await db.collection('users').doc(snapshot.data().userRef).collection('relationships').get();
+        relationships.forEach(async (relationship: any) => {
+            functions.logger.log('Relationship', relationship.data());
+            const relationshipData = relationship.data();
+            if (relationshipData?.metadata) {
+                const newMetadata = undoBehaviorTraits(relationshipData.metadata, updatedData.traitScores);
+                relationship.update({
+                    metadata: newMetadata,
+                    current_standing: await formatRelationship(relationshipData)
+                });
+            }
+        });
+        // Update the behavior document with new data
+        const updatedData: Behavior = await deleteBehavior(behaviorId);
+        return updatedData;
+    } catch (error) {
+        functions.logger.error('Error in behavior_deleted function:', error);
+        throw new functions.https.HttpsError("failed-precondition", error);
+    }
+}); 

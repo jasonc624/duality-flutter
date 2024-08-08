@@ -104,3 +104,30 @@ export function updateBehaviorTraits(metadata: RelationshipMetadata | null, newT
     functions.logger.log('updateBehaviorTraits result:', updatedMetadata);
     return updatedMetadata;
 }
+
+export function undoBehaviorTraits(metadata: RelationshipMetadata | null, traitsToUndo: TraitScores): RelationshipMetadata {
+    if (!metadata || !metadata.traitScores) {
+        // If there's no metadata or trait scores, return an empty metadata object
+        return { traitScores: {} };
+    }
+
+    const updatedMetadata: RelationshipMetadata = {
+        traitScores: { ...metadata.traitScores }
+    };
+
+    Object.entries(traitsToUndo).forEach(([trait, value]) => {
+        if (typeof value === 'number' && !trait.endsWith('_reason')) {
+            const currentValue = updatedMetadata.traitScores[trait as keyof TraitScores] ?? 0;
+            const newValue = currentValue - value; // Subtract instead of add
+            updatedMetadata.traitScores[trait as keyof TraitScores] = newValue;
+
+            // Optional: Log if the absolute value exceeds a certain threshold
+            if (Math.abs(newValue) > 100) {  // Example threshold
+                console.warn(`High trait score detected after undo: ${trait} = ${newValue}`);
+            }
+        }
+    });
+
+    console.log('undoBehaviorTraits result:', updatedMetadata);
+    return updatedMetadata;
+}
