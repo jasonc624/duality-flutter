@@ -93,7 +93,10 @@ class _CreateUpdateBehaviorState extends ConsumerState<CreateUpdateBehavior> {
         await _repository.updateBehavior(updatedBehavior);
       }
 
-      Navigator.of(context).pop();
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const MyHomePage()),
+        (Route<dynamic> route) => false,
+      );
     }
   }
 

@@ -97,7 +97,8 @@ exports.behavior_deleted = onDocumentDeleted("behaviors/{behaviorId}", async (ev
     const db = getFirestore();
     const behaviorId = event.params.behaviorId;
     const snapshot = event.data;
-    functions.logger.info("snapshot", snapshot.data());
+    const behaviorData = snapshot.data();
+    functions.logger.info("snapshot", behaviorData);
     if (!snapshot) {
         functions.logger.info("No snapshot, skipping formatting");
         return null;
@@ -113,13 +114,12 @@ exports.behavior_deleted = onDocumentDeleted("behaviors/{behaviorId}", async (ev
         }
         // Find relations affected by this behavior
         // Go subtract those trait scores from the relations and recalculate the current standing
-        // TODO: Verify if this works?
         const relationships = await db.collection('users').doc(snapshot.data().userRef).collection('relationships').get();
         relationships.forEach(async (relationship: any) => {
             functions.logger.log('Relationship', relationship.data());
             const relationshipData = relationship.data();
             if (relationshipData?.metadata) {
-                const newMetadata = undoBehaviorTraits(relationshipData.metadata, updatedData.traitScores);
+                const newMetadata = undoBehaviorTraits(relationshipData.metadata, behaviorData.traitScores);
                 relationship.update({
                     metadata: newMetadata,
                     current_standing: await formatRelationship(relationshipData)

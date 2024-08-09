@@ -89,4 +89,45 @@ exports.behavior_added = (0, firestore_1.onDocumentCreated)("behaviors/{behavior
         throw new functions.https.HttpsError("failed-precondition", error);
     }
 });
+exports.behavior_deleted = (0, firestore_1.onDocumentDeleted)("behaviors/{behaviorId}", async (event) => {
+    const db = getFirestore();
+    const behaviorId = event.params.behaviorId;
+    const snapshot = event.data;
+    const behaviorData = snapshot.data();
+    functions.logger.info("snapshot", behaviorData);
+    if (!snapshot) {
+        functions.logger.info("No snapshot, skipping formatting");
+        return null;
+    }
+    try {
+        const userDocRef = await db.collection('users').doc(snapshot.data().userRef);
+        const userDoc = await userDocRef.get();
+        const userData = userDoc.data();
+        functions.logger.log('Is User Data defined?', !!userData);
+        if (!userData) {
+            throw new Error('User data is undefined');
+        }
+        // Find relations affected by this behavior
+        // Go subtract those trait scores from the relations and recalculate the current standing
+        const relationships = await db.collection('users').doc(snapshot.data().userRef).collection('relationships').get();
+        relationships.forEach(async (relationship) => {
+            functions.logger.log('Relationship', relationship.data());
+            const relationshipData = relationship.data();
+            if (relationshipData === null || relationshipData === void 0 ? void 0 : relationshipData.metadata) {
+                const newMetadata = (0, relationships_1.undoBehaviorTraits)(relationshipData.metadata, behaviorData.traitScores);
+                relationship.update({
+                    metadata: newMetadata,
+                    current_standing: await (0, langchain_helpers_1.formatRelationship)(relationshipData)
+                });
+            }
+        });
+        // Update the behavior document with new data
+        const updatedData = await (0, behavior_1.deleteBehavior)(behaviorId);
+        return updatedData;
+    }
+    catch (error) {
+        functions.logger.error('Error in behavior_deleted function:', error);
+        throw new functions.https.HttpsError("failed-precondition", error);
+    }
+});
 //# sourceMappingURL=index.js.map

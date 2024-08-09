@@ -5,8 +5,6 @@ import 'package:duality/src/navigation_drawer/side_navigation.dart';
 import 'package:flutter/material.dart';
 import '../behavior_entry_feature/behavior_list_charts.dart';
 import '../behavior_entry_feature/create_update_behavior.dart';
-
-import '../charts/pie.dart';
 import 'timeline/bg_timeline.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 // Riverpod;
