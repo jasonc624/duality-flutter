@@ -91,7 +91,7 @@ class _TraitScoresPieChartState extends State<TraitScoresPieChart> {
           );
         case 1:
           return PieChartSectionData(
-            color: Colors.yellow,
+            color: Colors.pink,
             value: 30,
             title: '30%',
             radius: radius,
