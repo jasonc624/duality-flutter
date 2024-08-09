@@ -164,9 +164,9 @@ class _ProfilesOverviewWidgetState
               child: Text('Save'),
               onPressed: () {
                 if (nameController.text.isNotEmpty) {
-                  // ref.read(profilesProvider.notifier).updateProfile(
-                  //       profile.copyWith(name: nameController.text),
-                  //     );
+                  ref.read(profilesProvider.notifier).updateProfile(
+                        profile.copyWith(name: nameController.text),
+                      );
                   Navigator.of(context).pop();
                 }
               },

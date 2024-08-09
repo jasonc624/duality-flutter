@@ -22,7 +22,7 @@ class RelationshipsPage extends StatelessWidget {
         title: Text('Relationships'),
       ),
       body: StreamBuilder<List<Relationship>>(
-        stream: _repository.getAllRelationships(),
+        stream: _repository.getRelationships(),
         builder: (context, snapshot) {
           print('builder snapshot:${snapshot.data}');
           if (snapshot.hasError) {
@@ -104,15 +104,15 @@ class RelationshipsPage extends StatelessWidget {
           TextButton(
             onPressed: () async {
               if (nameController.text.isNotEmpty) {
-                final newRelationship = Relationship(
-                  id: '', // Repository will handle this
-                  name: nameController.text,
-                  type: typeController.text.isNotEmpty
+                final newRelationship = {
+                  "id": '', // Repository will handle this
+                  "name": nameController.text,
+                  "type": typeController.text.isNotEmpty
                       ? typeController.text
                       : null,
-                  createdAt: DateTime.now(),
-                  updatedAt: DateTime.now(),
-                );
+                  "createdAt": DateTime.now(),
+                  "updatedAt": DateTime.now(),
+                };
 
                 await _repository.createRelationship(newRelationship);
                 Navigator.of(context).pop();
