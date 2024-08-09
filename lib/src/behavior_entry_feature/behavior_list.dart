@@ -44,7 +44,11 @@ class BehaviorListView extends ConsumerWidget {
 
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
           print('no data in snapshot');
-          return const Center(child: Text('Whats going on in your day?'));
+          return const Center(
+              child: Text(
+            'What will you do today?',
+            style: TextStyle(fontSize: 20),
+          ));
         }
 
         return ListView.separated(

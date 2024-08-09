@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../profiles_feature/profile_list_widget.dart';
 import '../relationships/relationships_list.dart';
+import '../reports_feature/week_list.dart';
 import '../settings/settings_view.dart';
 
 class SideNavigation extends ConsumerWidget {
@@ -116,6 +117,13 @@ class SideNavigation extends ConsumerWidget {
             onTap: () {
               Navigator.restorablePushNamed(
                   context, RelationshipsPage.routeName);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.bar_chart_rounded),
+            title: const Text('Reports'),
+            onTap: () {
+              Navigator.restorablePushNamed(context, WeeksList.routeName);
             },
           ),
           ListTile(

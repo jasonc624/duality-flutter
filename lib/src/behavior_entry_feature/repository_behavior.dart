@@ -54,6 +54,33 @@ class BehaviorRepository {
     });
   }
 
+  Stream<Map<int, List<BehaviorEntry>>> getBehaviorsForWeek(
+      DateTime startDate, DateTime endDate, String userRef) {
+    return _collection
+        .where('created', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
+        .where('created', isLessThan: Timestamp.fromDate(endDate))
+        .where('userRef', isEqualTo: userRef)
+        .snapshots()
+        .map((snapshot) {
+      List<BehaviorEntry> behaviors =
+          snapshot.docs.map((doc) => BehaviorEntry.fromFirestore(doc)).toList();
+
+      // Sort the behaviors list in ascending order of creation time
+      behaviors.sort((a, b) => a.created.compareTo(b.created));
+
+      // Group behaviors by day of the week (0-6)
+      Map<int, List<BehaviorEntry>> behaviorsByDay = {};
+      for (var behavior in behaviors) {
+        int dayOfWeek = behavior.created.difference(startDate).inDays;
+        if (dayOfWeek >= 0 && dayOfWeek < 7) {
+          behaviorsByDay.putIfAbsent(dayOfWeek, () => []).add(behavior);
+        }
+      }
+
+      return behaviorsByDay;
+    });
+  }
+
   // Update an existing behavior entry
   Future<void> updateBehavior(BehaviorEntry entry) async {
     if (entry.id == null) {

@@ -22,6 +22,32 @@ class TraitScoresPieChart extends StatefulWidget {
 class _TraitScoresPieChartState extends State<TraitScoresPieChart> {
   int touchedIndex = -1;
   late List<MapEntry<String, double>> aggregatedScores;
+  // TODO make this a class
+  final Map<String, Color> traitColors = {
+    // Positive traits
+    'compassionate': Colors.deepPurple.shade800,
+    'honest': Colors.deepPurple.shade600,
+    'courageous': Colors.deepPurple.shade300,
+    'ambitious': Colors.deepPurple.shade400,
+    'generous': Colors.deepPurple,
+    'patient': Colors.deepPurple.shade800,
+    'humble': Colors.deepPurple.shade600,
+    'loyal': Colors.deepPurple.shade300,
+    'optimistic': Colors.deepPurple.shade400,
+    'responsible': Colors.deepPurple,
+
+    // Negative traits
+    'callous': Colors.deepOrange,
+    'deceitful': Colors.deepOrange.shade400,
+    'cowardly': Colors.deepOrange.shade300,
+    'lazy': Colors.deepOrange.shade600,
+    'greedy': Colors.deepOrange.shade800,
+    'impatient': Colors.deepOrange,
+    'arrogant': Colors.deepOrange.shade400,
+    'disloyal': Colors.deepOrange.shade300,
+    'pessimistic': Colors.deepOrange.shade600,
+    'irresponsible': Colors.deepOrange.shade800,
+  };
 
   @override
   void initState() {
@@ -39,16 +65,22 @@ class _TraitScoresPieChartState extends State<TraitScoresPieChart> {
 
       traitScores.forEach((trait, score) {
         if (!trait.endsWith('_reason')) {
-          print('trait foreach ${trait}, ${score}');
+          // Exclude reason traits
           double numericScore = _parseScore(score);
           if (_shouldIncludeTrait(trait, numericScore)) {
-            scores[trait] = (scores[trait] ?? 0) + numericScore.abs();
+            String traitName = _getTraitName(trait, numericScore);
+            scores[traitName] = (scores[traitName] ?? 0) + numericScore.abs();
           }
         }
       });
     }
 
     return scores.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+  }
+
+  String _getTraitName(String trait, double score) {
+    List<String> parts = trait.split('_');
+    return score >= 0 ? parts[0] : parts[1];
   }
 
   bool _shouldIncludeTrait(String trait, double score) {
@@ -73,10 +105,6 @@ class _TraitScoresPieChartState extends State<TraitScoresPieChart> {
 
   @override
   Widget build(BuildContext context) {
-    if (aggregatedScores.isEmpty) {
-      return Center(child: Text('No data available'));
-    }
-
     return SizedBox(
       width: MediaQuery.of(context).size.width * 0.33,
       child: Column(
@@ -115,29 +143,42 @@ class _TraitScoresPieChartState extends State<TraitScoresPieChart> {
   }
 
   List<PieChartSectionData> showingSections() {
+    if (aggregatedScores.isEmpty) {
+      // Return a single grey section for empty data
+      return [
+        PieChartSectionData(
+          color: Colors.grey.shade200,
+          value: 100,
+          title: '',
+          radius: 45,
+          titleStyle: TextStyle(
+              fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black),
+        )
+      ];
+    }
     return List.generate(aggregatedScores.length, (i) {
       final isTouched = i == touchedIndex;
-      final fontSize = isTouched ? 16.0 : 12.0;
-      final radius = isTouched ? 45.0 : 40.0;
-      const shadows = [Shadow(color: Colors.black, blurRadius: 2)];
+      final fontSize = isTouched ? 16.0 : 8.0;
+      final radius = isTouched ? 50.0 : 45.0;
+      const shadows = [Shadow(color: Colors.black, blurRadius: 0)];
 
       final entry = aggregatedScores[i];
       final percent = (entry.value /
               aggregatedScores.map((e) => e.value).reduce((a, b) => a + b) *
               100)
           .toStringAsFixed(1);
-      print('key ${entry.key}');
+
       return PieChartSectionData(
-        showTitle: false,
+        showTitle: true,
         color: _getColor(entry.key),
         value: entry.value,
-        title: '$percent%',
+        title: '${entry.key}'.capitalize(),
         radius: radius,
         badgePositionPercentageOffset: .90,
         titleStyle: TextStyle(
           fontSize: fontSize,
-          fontWeight: FontWeight.bold,
-          color: Colors.black,
+          fontWeight: FontWeight.normal,
+          color: Colors.white,
           shadows: shadows,
         ),
       );
@@ -145,30 +186,12 @@ class _TraitScoresPieChartState extends State<TraitScoresPieChart> {
   }
 
   Color _getColor(String trait) {
-    final isPositiveTrait = trait.split('_')[0] == trait.split('_').first;
-    final List<Color> positiveColors = [
-      Colors.deepPurple.shade100,
-      Colors.deepPurple.shade200,
-      Colors.deepPurple.shade300,
-      Colors.deepPurple.shade400,
-      Colors.deepPurple,
-    ];
-    final List<Color> negativeColors = [
-      Colors.lime,
-      Colors.lime.shade400,
-      Colors.lime.shade300,
-      Colors.lime.shade200,
-      Colors.lime.shade100,
-    ];
-
-    final colors = isPositiveTrait ? positiveColors : negativeColors;
-    return colors[
-        aggregatedScores.indexWhere((element) => element.key == trait) %
-            colors.length];
+    return traitColors[trait.toLowerCase()] ??
+        Colors.grey; // Default to grey if trait not found
   }
 
   String _formatTraitName(String trait) {
-    return trait.split('_')[0].capitalize();
+    return trait.capitalize();
   }
 }
 

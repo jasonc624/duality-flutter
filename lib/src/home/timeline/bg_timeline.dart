@@ -19,11 +19,13 @@ class CustomBackgroundExample extends ConsumerWidget {
         uistate.setDate(selectedDate);
       },
       headerProps: const EasyHeaderProps(
-        monthPickerType: MonthPickerType.switcher,
+        centerHeader: true,
+        monthPickerType: MonthPickerType.dropDown,
         dateFormatter: DateFormatter.fullDateMonthAsStrDY(),
       ),
       dayProps: const EasyDayProps(
         dayStructure: DayStructure.dayStrDayNum,
+        height: 65.0,
         activeDayStyle: DayStyle(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(8)),

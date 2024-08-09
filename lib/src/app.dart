@@ -5,6 +5,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'relationships/relationships_list.dart';
+import 'reports_feature/week_list.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
 import 'package:duality/src/home/home.dart';
@@ -87,6 +88,8 @@ class MyApp extends StatelessWidget {
                 switch (routeSettings.name) {
                   case RelationshipsPage.routeName:
                     return RelationshipsPage();
+                  case WeeksList.routeName:
+                    return WeeksList();
                   case ProfilesOverviewWidget.routeName:
                     return ProfilesOverviewWidget();
                   case SettingsView.routeName:
