@@ -138,9 +138,9 @@ class SideNavigation extends ConsumerWidget {
             title: const Text('Logout'),
             onTap: () async {
               await logout();
-              // Optional: Close the drawer
+
               Navigator.of(context).pop();
-              // Optional: Navigate to login screen
+
               // Navigator.of(context).pushReplacementNamed('/login');
             },
           ),

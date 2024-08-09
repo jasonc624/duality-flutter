@@ -94,8 +94,8 @@ export function updateBehaviorTraits(metadata: RelationshipMetadata | null, newT
             const newValue = currentValue + value;
             updatedMetadata.traitScores[trait as keyof TraitScores] = newValue;
 
-            // Optional: Log if the absolute value exceeds a certain threshold
-            if (Math.abs(newValue) > 100) {  // Example threshold
+
+            if (Math.abs(newValue) > 100) {
                 functions.logger.warn(`High trait score detected: ${trait} = ${newValue}`);
             }
         }
@@ -121,7 +121,7 @@ export function undoBehaviorTraits(metadata: RelationshipMetadata | null, traits
             const newValue = currentValue - value; // Subtract instead of add
             updatedMetadata.traitScores[trait as keyof TraitScores] = newValue;
 
-            // Optional: Log if the absolute value exceeds a certain threshold
+
             if (Math.abs(newValue) > 100) {  // Example threshold
                 console.warn(`High trait score detected after undo: ${trait} = ${newValue}`);
             }

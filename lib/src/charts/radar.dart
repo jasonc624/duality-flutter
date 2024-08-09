@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/rendering.dart';
-
 import '../behavior_entry_feature/behavior_entry_model.dart';
 
 class BehaviorRadarChart extends StatelessWidget {
@@ -11,7 +9,6 @@ class BehaviorRadarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Define all trait pairs
     final traitPairs = [
       ['compassionate', 'callous'],
       ['honest', 'deceitful'],
@@ -25,88 +22,89 @@ class BehaviorRadarChart extends StatelessWidget {
       ['responsible', 'irresponsible']
     ];
 
-    // Function to get a human-readable label from the trait key
     String getTraitLabel(String trait) {
       return trait.capitalize();
     }
 
-    // Function to get the score for a trait pair
     double getTraitScore(String positiveTrait, String negativeTrait) {
       String fullTrait = '${positiveTrait}_${negativeTrait}';
-      return (behavior.traitScores?[fullTrait] as num?)?.toDouble() ??
-          2.0; // Default to neutral if not present
+      return (behavior.traitScores?[fullTrait] as num?)?.toDouble() ?? 0.0;
     }
 
-    // Function to create a radar chart
-    Widget createRadarChart(bool isPositive) {
-      String title = isPositive ? 'Positive Traits' : 'Negative Traits';
-      Color color = isPositive ? Colors.blue : Colors.red;
-
+    Widget createRadarChart() {
       return Column(
         children: [
-          Text(title,
+          Text('Trait Analysis',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
           SizedBox(
-            height: 300, // Adjust this value as needed
+            height: 360,
             child: RadarChart(
+              swapAnimationDuration: const Duration(milliseconds: 400),
               RadarChartData(
                 titleTextStyle:
                     const TextStyle(color: Colors.black, fontSize: 11),
                 radarShape: RadarShape.circle,
                 radarBorderData:
-                    const BorderSide(color: Colors.deepPurpleAccent, width: 2),
+                    const BorderSide(color: Colors.black26, width: 2),
                 ticksTextStyle:
                     const TextStyle(color: Colors.black, fontSize: 8),
-                tickBorderData:
-                    const BorderSide(color: Colors.deepPurpleAccent),
+                tickBorderData: const BorderSide(color: Colors.black26),
                 gridBorderData:
-                    const BorderSide(color: Colors.deepPurpleAccent, width: 1),
+                    const BorderSide(color: Colors.deepPurple, width: 1),
+                radarBackgroundColor: Colors.transparent,
+                borderData: FlBorderData(show: true),
                 tickCount: 5,
                 dataSets: [
                   RadarDataSet(
-                    fillColor: color.withOpacity(0.2),
-                    borderColor: color,
+                    fillColor: Colors.deepPurple.withOpacity(0.2),
+                    borderColor: Colors.deepPurple,
                     dataEntries: traitPairs.map((pair) {
                       double score = getTraitScore(pair[0], pair[1]);
-                      return RadarEntry(
-                          value: isPositive
-                              ? (score > 2 ? score - 2 : 0)
-                              : // For positive traits, show values above neutral
-                              (score < 2
-                                  ? 2 - score
-                                  : 0) // For negative traits, show values below neutral
-                          );
+                      return RadarEntry(value: score > 0 ? score.abs() : 0);
+                    }).toList(),
+                  ),
+                  RadarDataSet(
+                    fillColor: Colors.deepOrange.withOpacity(0.2),
+                    borderColor: Colors.deepOrange,
+                    dataEntries: traitPairs.map((pair) {
+                      double score = getTraitScore(pair[0], pair[1]);
+                      return RadarEntry(value: score < 0 ? score.abs() : 0);
                     }).toList(),
                   ),
                 ],
                 getTitle: (index, angle) {
                   return RadarChartTitle(
-                    text: getTraitLabel(isPositive
-                        ? traitPairs[index][0]
-                        : traitPairs[index][1]),
-                    angle: angle + 0,
+                    text:
+                        '${getTraitLabel(traitPairs[index][0])}\n${getTraitLabel(traitPairs[index][1])}',
+                    angle: 0,
                     positionPercentageOffset: 0.1,
                   );
                 },
               ),
             ),
           ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(width: 20, height: 20, color: Colors.deepPurple),
+              const SizedBox(width: 8),
+              Text('Positive'),
+              const SizedBox(width: 20),
+              Container(width: 20, height: 20, color: Colors.deepOrange),
+              const SizedBox(width: 8),
+              Text('Negative'),
+            ],
+          ),
         ],
       );
     }
 
-    return Column(
-      children: [
-        createRadarChart(true), // Positive traits
-        SizedBox(height: 30), // Add some space between the charts
-        createRadarChart(false), // Negative traits
-      ],
-    );
+    return createRadarChart();
   }
 }
 
-// Extension to capitalize the first letter of a string
 extension StringExtension on String {
   String capitalize() {
     return "${this[0].toUpperCase()}${this.substring(1)}";

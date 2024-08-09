@@ -84,7 +84,6 @@ class _ProfilesOverviewWidgetState
                     : () {
                         _showDeleteConfirmation(context, profile);
                       },
-                // Optional: Change the color to indicate the button is disabled
                 color: profile.isDefault ? Colors.grey : null,
               ),
             ],
