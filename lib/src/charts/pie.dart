@@ -74,6 +74,8 @@ class _TraitScoresPieChartState extends State<TraitScoresPieChart> {
           Text(widget.title, style: Theme.of(context).textTheme.labelSmall),
           Expanded(
             child: PieChart(
+              swapAnimationDuration: Duration(milliseconds: 150), // Optional
+              swapAnimationCurve: Curves.bounceIn, // Optional
               PieChartData(
                 pieTouchData: PieTouchData(
                   touchCallback: (FlTouchEvent event, pieTouchResponse) {
@@ -91,22 +93,22 @@ class _TraitScoresPieChartState extends State<TraitScoresPieChart> {
                 ),
                 borderData: FlBorderData(show: false),
                 sectionsSpace: 0,
-                centerSpaceRadius: 20,
+                centerSpaceRadius: 5,
                 sections: showingSections(),
               ),
             ),
           ),
           SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 4,
-            children: aggregatedScores
-                .map((entry) => Indicator(
-                    color: _getColor(entry.key),
-                    text: _formatTraitName(entry.key),
-                    isSquare: true))
-                .toList(),
-          ),
+          // Wrap(
+          //   spacing: 8,
+          //   runSpacing: 4,
+          //   children: aggregatedScores
+          //       .map((entry) => Indicator(
+          //           color: _getColor(entry.key),
+          //           text: _formatTraitName(entry.key),
+          //           isSquare: true))
+          //       .toList(),
+          // ),
         ],
       ),
     );
@@ -126,14 +128,16 @@ class _TraitScoresPieChartState extends State<TraitScoresPieChart> {
           .toStringAsFixed(1);
 
       return PieChartSectionData(
+        showTitle: false,
         color: _getColor(entry.key),
         value: entry.value,
         title: '$percent%',
         radius: radius,
+        badgePositionPercentageOffset: .90,
         titleStyle: TextStyle(
           fontSize: fontSize,
           fontWeight: FontWeight.bold,
-          color: Colors.white,
+          color: Colors.black,
           shadows: shadows,
         ),
       );
@@ -142,10 +146,10 @@ class _TraitScoresPieChartState extends State<TraitScoresPieChart> {
 
   Color _getColor(String trait) {
     final List<Color> colors = [
-      Colors.red,
-      Colors.blue,
-      Colors.green,
-      Colors.yellow,
+      Colors.deepPurple.shade100,
+      Colors.deepPurple.shade200,
+      Colors.deepPurple.shade300,
+      Colors.deepPurple.shade400,
       Colors.purple,
       Colors.orange,
       Colors.pink,
@@ -182,7 +186,7 @@ class Indicator extends StatelessWidget {
     required this.color,
     required this.text,
     required this.isSquare,
-    this.size = 12,
+    this.size = 26,
     this.textColor = Colors.black,
   }) : super(key: key);
 

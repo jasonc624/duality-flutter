@@ -60,7 +60,7 @@ class BehaviorAnalysisPieCharts extends ConsumerWidget {
                 child: TraitScoresPieChart(
                   behaviorEntries: behaviorEntries,
                   traitType: TraitType.positive,
-                  title: 'Positive',
+                  title: '',
                 ),
               ),
               SizedBox(
@@ -69,7 +69,7 @@ class BehaviorAnalysisPieCharts extends ConsumerWidget {
                 child: TraitScoresPieChart(
                   behaviorEntries: behaviorEntries,
                   traitType: TraitType.negative,
-                  title: 'Negative',
+                  title: '',
                 ),
               ),
               SizedBox(
@@ -78,7 +78,7 @@ class BehaviorAnalysisPieCharts extends ConsumerWidget {
                 child: TraitScoresPieChart(
                   behaviorEntries: behaviorEntries,
                   traitType: TraitType.all,
-                  title: 'All Traits',
+                  title: '',
                 ),
               ),
             ],
