@@ -290,15 +290,16 @@ class _CreateUpdateBehaviorState extends ConsumerState<CreateUpdateBehavior> {
         ),
       ),
       bottomNavigationBar: Container(
-        padding: EdgeInsets.all(16),
-        child: ElevatedButton(
-          child:
-              Text('Delete', style: TextStyle(fontSize: 18, color: Colors.red)),
-          onPressed: () {
-            _showDeleteConfirmationDialog(context);
-          },
-        ),
-      ),
+          padding: const EdgeInsets.all(16),
+          child: widget.behaviorEntry != null
+              ? ElevatedButton(
+                  child: Text('Delete',
+                      style: TextStyle(fontSize: 18, color: Colors.red)),
+                  onPressed: () {
+                    _showDeleteConfirmationDialog(context);
+                  },
+                )
+              : SizedBox(height: 20)),
     );
   }
 }

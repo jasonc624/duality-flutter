@@ -33,11 +33,17 @@ class _TraitScoresPieChartState extends State<TraitScoresPieChart> {
     Map<String, double> scores = {};
 
     for (var entry in widget.behaviorEntries) {
-      Map<String, dynamic> traitScores = entry['traitScores'];
+      Map<String, dynamic>? traitScores =
+          entry['traitScores'] as Map<String, dynamic>?;
+      if (traitScores == null || traitScores.isEmpty) continue;
+
       traitScores.forEach((trait, score) {
-        double numericScore = _parseScore(score);
-        if (_shouldIncludeTrait(trait, numericScore)) {
-          scores[trait] = (scores[trait] ?? 0) + numericScore.abs();
+        if (!trait.endsWith('_reason')) {
+          print('trait foreach ${trait}, ${score}');
+          double numericScore = _parseScore(score);
+          if (_shouldIncludeTrait(trait, numericScore)) {
+            scores[trait] = (scores[trait] ?? 0) + numericScore.abs();
+          }
         }
       });
     }
@@ -67,6 +73,10 @@ class _TraitScoresPieChartState extends State<TraitScoresPieChart> {
 
   @override
   Widget build(BuildContext context) {
+    if (aggregatedScores.isEmpty) {
+      return Center(child: Text('No data available'));
+    }
+
     return SizedBox(
       width: MediaQuery.of(context).size.width * 0.33,
       child: Column(
@@ -74,8 +84,8 @@ class _TraitScoresPieChartState extends State<TraitScoresPieChart> {
           Text(widget.title, style: Theme.of(context).textTheme.labelSmall),
           Expanded(
             child: PieChart(
-              swapAnimationDuration: Duration(milliseconds: 150), // Optional
-              swapAnimationCurve: Curves.bounceIn, // Optional
+              swapAnimationDuration: Duration(milliseconds: 150),
+              swapAnimationCurve: Curves.bounceIn,
               PieChartData(
                 pieTouchData: PieTouchData(
                   touchCallback: (FlTouchEvent event, pieTouchResponse) {
@@ -99,16 +109,6 @@ class _TraitScoresPieChartState extends State<TraitScoresPieChart> {
             ),
           ),
           SizedBox(height: 10),
-          // Wrap(
-          //   spacing: 8,
-          //   runSpacing: 4,
-          //   children: aggregatedScores
-          //       .map((entry) => Indicator(
-          //           color: _getColor(entry.key),
-          //           text: _formatTraitName(entry.key),
-          //           isSquare: true))
-          //       .toList(),
-          // ),
         ],
       ),
     );
@@ -126,7 +126,7 @@ class _TraitScoresPieChartState extends State<TraitScoresPieChart> {
               aggregatedScores.map((e) => e.value).reduce((a, b) => a + b) *
               100)
           .toStringAsFixed(1);
-
+      print('key ${entry.key}');
       return PieChartSectionData(
         showTitle: false,
         color: _getColor(entry.key),
@@ -145,18 +145,23 @@ class _TraitScoresPieChartState extends State<TraitScoresPieChart> {
   }
 
   Color _getColor(String trait) {
-    final List<Color> colors = [
+    final isPositiveTrait = trait.split('_')[0] == trait.split('_').first;
+    final List<Color> positiveColors = [
       Colors.deepPurple.shade100,
       Colors.deepPurple.shade200,
       Colors.deepPurple.shade300,
       Colors.deepPurple.shade400,
-      Colors.purple,
-      Colors.orange,
-      Colors.pink,
-      Colors.teal,
-      Colors.indigo,
-      Colors.cyan
+      Colors.deepPurple,
     ];
+    final List<Color> negativeColors = [
+      Colors.lime,
+      Colors.lime.shade400,
+      Colors.lime.shade300,
+      Colors.lime.shade200,
+      Colors.lime.shade100,
+    ];
+
+    final colors = isPositiveTrait ? positiveColors : negativeColors;
     return colors[
         aggregatedScores.indexWhere((element) => element.key == trait) %
             colors.length];
