@@ -21,14 +21,57 @@ class TraitScoresPieChart extends StatefulWidget {
 
 class _TraitScoresPieChartState extends State<TraitScoresPieChart> {
   int touchedIndex = -1;
+  late List<MapEntry<String, double>> aggregatedScores;
+
+  @override
+  void initState() {
+    super.initState();
+    aggregatedScores = _aggregateScores();
+  }
+
+  List<MapEntry<String, double>> _aggregateScores() {
+    Map<String, double> scores = {};
+
+    for (var entry in widget.behaviorEntries) {
+      Map<String, dynamic> traitScores = entry['traitScores'];
+      traitScores.forEach((trait, score) {
+        double numericScore = _parseScore(score);
+        if (_shouldIncludeTrait(trait, numericScore)) {
+          scores[trait] = (scores[trait] ?? 0) + numericScore.abs();
+        }
+      });
+    }
+
+    return scores.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+  }
+
+  bool _shouldIncludeTrait(String trait, double score) {
+    switch (widget.traitType) {
+      case TraitType.all:
+        return score != 0;
+      case TraitType.positive:
+        return score > 0;
+      case TraitType.negative:
+        return score < 0;
+    }
+  }
+
+  double _parseScore(dynamic score) {
+    if (score is num) {
+      return score.toDouble();
+    } else if (score is String) {
+      return double.tryParse(score) ?? 0.0;
+    }
+    return 0.0;
+  }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.33, // 33% of screen width
+      width: MediaQuery.of(context).size.width * 0.33,
       child: Column(
         children: [
-          Text(widget.title, style: Theme.of(context).textTheme.bodySmall),
+          Text(widget.title, style: Theme.of(context).textTheme.labelSmall),
           Expanded(
             child: PieChart(
               PieChartData(
@@ -57,12 +100,12 @@ class _TraitScoresPieChartState extends State<TraitScoresPieChart> {
           Wrap(
             spacing: 8,
             runSpacing: 4,
-            children: [
-              Indicator(color: Colors.blue, text: 'First', isSquare: true),
-              Indicator(color: Colors.yellow, text: 'Second', isSquare: true),
-              Indicator(color: Colors.purple, text: 'Third', isSquare: true),
-              Indicator(color: Colors.green, text: 'Fourth', isSquare: true),
-            ],
+            children: aggregatedScores
+                .map((entry) => Indicator(
+                    color: _getColor(entry.key),
+                    text: _formatTraitName(entry.key),
+                    isSquare: true))
+                .toList(),
           ),
         ],
       ),
@@ -70,71 +113,63 @@ class _TraitScoresPieChartState extends State<TraitScoresPieChart> {
   }
 
   List<PieChartSectionData> showingSections() {
-    return List.generate(4, (i) {
+    return List.generate(aggregatedScores.length, (i) {
       final isTouched = i == touchedIndex;
-      final fontSize = isTouched ? 20.0 : 14.0;
+      final fontSize = isTouched ? 16.0 : 12.0;
       final radius = isTouched ? 45.0 : 40.0;
       const shadows = [Shadow(color: Colors.black, blurRadius: 2)];
-      switch (i) {
-        case 0:
-          return PieChartSectionData(
-            color: Colors.blue,
-            value: 40,
-            title: '40%',
-            radius: radius,
-            titleStyle: TextStyle(
-              fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              shadows: shadows,
-            ),
-          );
-        case 1:
-          return PieChartSectionData(
-            color: Colors.pink,
-            value: 30,
-            title: '30%',
-            radius: radius,
-            titleStyle: TextStyle(
-              fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              shadows: shadows,
-            ),
-          );
-        case 2:
-          return PieChartSectionData(
-            color: Colors.purple,
-            value: 15,
-            title: '15%',
-            radius: radius,
-            titleStyle: TextStyle(
-              fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              shadows: shadows,
-            ),
-          );
-        case 3:
-          return PieChartSectionData(
-            color: Colors.green,
-            value: 15,
-            title: '15%',
-            radius: radius,
-            titleStyle: TextStyle(
-              fontSize: fontSize,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              shadows: shadows,
-            ),
-          );
-        default:
-          throw Error();
-      }
+
+      final entry = aggregatedScores[i];
+      final percent = (entry.value /
+              aggregatedScores.map((e) => e.value).reduce((a, b) => a + b) *
+              100)
+          .toStringAsFixed(1);
+
+      return PieChartSectionData(
+        color: _getColor(entry.key),
+        value: entry.value,
+        title: '$percent%',
+        radius: radius,
+        titleStyle: TextStyle(
+          fontSize: fontSize,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+          shadows: shadows,
+        ),
+      );
     });
+  }
+
+  Color _getColor(String trait) {
+    final List<Color> colors = [
+      Colors.red,
+      Colors.blue,
+      Colors.green,
+      Colors.yellow,
+      Colors.purple,
+      Colors.orange,
+      Colors.pink,
+      Colors.teal,
+      Colors.indigo,
+      Colors.cyan
+    ];
+    return colors[
+        aggregatedScores.indexWhere((element) => element.key == trait) %
+            colors.length];
+  }
+
+  String _formatTraitName(String trait) {
+    return trait.split('_')[0].capitalize();
   }
 }
 
+extension StringExtension on String {
+  String capitalize() {
+    return "${this[0].toUpperCase()}${this.substring(1)}";
+  }
+}
+
+// Indicator class remains the same as in the previous example
 class Indicator extends StatelessWidget {
   final Color color;
   final String text;
