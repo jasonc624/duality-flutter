@@ -1,6 +1,9 @@
-# duality
+# Polarity
 
-A new Flutter project.
+A new Flutter project, I made for the Gemini Competition. I am a total newbie to Flutter and I am trying to learn as much as I can!
+
+- Sincerely,
+An Angular Developer
 
 ## Getting Started
 

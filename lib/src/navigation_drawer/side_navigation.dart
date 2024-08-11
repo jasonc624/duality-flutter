@@ -13,9 +13,10 @@ class SideNavigation extends ConsumerWidget {
   final User? firebaseUser;
 
   const SideNavigation({super.key, required this.firebaseUser});
-  Future<void> logout() async {
+  Future<void> logout(context) async {
     try {
       await FirebaseAuth.instance.signOut();
+      Navigator.of(context, rootNavigator: true).pop(context);
     } catch (e) {
       // print('Error during logout: $e');
       // TODO: Show an error message to the user
@@ -137,11 +138,7 @@ class SideNavigation extends ConsumerWidget {
             leading: const Icon(Icons.exit_to_app),
             title: const Text('Logout'),
             onTap: () async {
-              await logout();
-
-              Navigator.of(context).pop();
-
-              // Navigator.of(context).pushReplacementNamed('/login');
+              await logout(context);
             },
           ),
         ],
