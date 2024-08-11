@@ -8,9 +8,10 @@ import { formatBehavior, formatRelationship } from "./langchain_helpers";
 import { Behavior, deleteBehavior, updateBehavior } from "./firestore_helpers/behavior";
 import { findExistingRelationship, Relationship, undoBehaviorTraits, updateBehaviorTraits } from "./firestore_helpers/relationships";
 import { Timestamp } from "firebase-admin/firestore";
+import { defineSecret } from "firebase-functions/params";
 const { getFirestore } = require('firebase-admin/firestore');
 
-exports.behavior_added = onDocumentCreated("behaviors/{behaviorId}", async (event: any) => {
+exports.behavior_added = onDocumentCreated({ document: "behaviors/{behaviorId}", secrets: [defineSecret("GEMINI_API_KEY")] }, async (event: any) => {
     const db = getFirestore();
     const behaviorId = event.params.behaviorId;
     const snapshot = event.data;
@@ -93,7 +94,7 @@ exports.behavior_added = onDocumentCreated("behaviors/{behaviorId}", async (even
     }
 });
 
-exports.behavior_deleted = onDocumentDeleted("behaviors/{behaviorId}", async (event: any) => {
+exports.behavior_deleted = onDocumentDeleted({ document: "behaviors/{behaviorId}", secrets: [defineSecret("GEMINI_API_KEY")] }, async (event: any) => {
     const db = getFirestore();
     const behaviorId = event.params.behaviorId;
     const snapshot = event.data;

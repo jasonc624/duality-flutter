@@ -7,8 +7,9 @@ const langchain_helpers_1 = require("./langchain_helpers");
 const behavior_1 = require("./firestore_helpers/behavior");
 const relationships_1 = require("./firestore_helpers/relationships");
 const firestore_2 = require("firebase-admin/firestore");
+const params_1 = require("firebase-functions/params");
 const { getFirestore } = require('firebase-admin/firestore');
-exports.behavior_added = (0, firestore_1.onDocumentCreated)("behaviors/{behaviorId}", async (event) => {
+exports.behavior_added = (0, firestore_1.onDocumentCreated)({ document: "behaviors/{behaviorId}", secrets: [(0, params_1.defineSecret)("GEMINI_API_KEY")] }, async (event) => {
     var _a;
     const db = getFirestore();
     const behaviorId = event.params.behaviorId;
@@ -89,7 +90,7 @@ exports.behavior_added = (0, firestore_1.onDocumentCreated)("behaviors/{behavior
         throw new functions.https.HttpsError("failed-precondition", error);
     }
 });
-exports.behavior_deleted = (0, firestore_1.onDocumentDeleted)("behaviors/{behaviorId}", async (event) => {
+exports.behavior_deleted = (0, firestore_1.onDocumentDeleted)({ document: "behaviors/{behaviorId}", secrets: [(0, params_1.defineSecret)("GEMINI_API_KEY")] }, async (event) => {
     const db = getFirestore();
     const behaviorId = event.params.behaviorId;
     const snapshot = event.data;

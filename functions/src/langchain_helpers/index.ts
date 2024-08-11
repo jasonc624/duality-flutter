@@ -3,15 +3,15 @@ const functions = require('firebase-functions');
 import { FunctionDeclarationSchemaType, GoogleGenerativeAI } from "@google/generative-ai";
 import { Behavior } from "../firestore_helpers/behavior";
 import { Relationship } from "../firestore_helpers/relationships";
-const genAI = new GoogleGenerativeAI("AIzaSyDlP77_zfPOixhygxfqCrcQM5q2LJHckAY");
+import { defineSecret } from "firebase-functions/params";
+const GEMINI_API_KEY = defineSecret("GEMINI_API_KEY");
 
 
 export async function formatBehavior(behavior: Behavior): Promise<[]> {
+    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY.value());
     functions.logger.log('Behavior to format:', behavior);
     const behaviorText = behavior?.description;
     // const safe: any[] = [
-
-
     //     {
     //         "category": "HARM_CATEGORY_HARASSMENT",
     //         "threshold": "BLOCK_NONE",
@@ -172,6 +172,7 @@ export async function formatBehavior(behavior: Behavior): Promise<[]> {
 }
 
 export async function formatRelationship(relationship: Relationship): Promise<{ emoji: string, summary: string }> {
+    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY.value());
     functions.logger.log(relationship);
     if (!relationship.metadata?.traitScores) {
         functions.logger.error('No trait scores found, returning default');
