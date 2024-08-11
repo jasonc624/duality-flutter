@@ -33,8 +33,8 @@ class CustomBackgroundExample extends ConsumerWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Color(0xff3371FF),
-                Color(0xff8426D6),
+                Color.fromRGBO(51, 113, 255, 1),
+                Color.fromRGBO(132, 38, 214, 1),
               ],
             ),
           ),

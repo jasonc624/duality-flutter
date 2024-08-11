@@ -31,7 +31,7 @@ export async function formatBehavior(behavior: Behavior): Promise<[]> {
     // ]
     functions.logger.log(behaviorText);
     const model = genAI.getGenerativeModel({
-        model: "gemini-1.5-pro",
+        model: "gemini-1.5-flash",
         generationConfig: {
             responseMimeType: "application/json",
             responseSchema: {
@@ -178,7 +178,7 @@ export async function formatRelationship(relationship: Relationship): Promise<{ 
         return { emoji: '', summary: '' };
     }
     const model = genAI.getGenerativeModel({
-        model: "gemini-1.5-pro",
+        model: "gemini-1.5-flash",
         generationConfig: {
             responseMimeType: "application/json",
             responseSchema: {
