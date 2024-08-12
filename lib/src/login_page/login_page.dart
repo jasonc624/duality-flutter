@@ -98,7 +98,16 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
         appBar: AppBar(title: Text(_isRegistration ? 'Sign Up' : 'Login')),
         body: Container(
-          color: Colors.deepPurple,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.blueAccent,
+                Colors.deepPurple
+              ], // Change these colors as desired
+            ),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Form(
