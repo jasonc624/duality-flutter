@@ -216,7 +216,7 @@ export async function formatRelationship(relationship: Relationship): Promise<{ 
       9. optimistic_pessimistic
       10. responsible_irresponsible
     
-    Provide a concise summary (maximum 100 words) of the overall relationship dynamics from the perspective of the person that has the relationship with ${relationship.name}. 
+    Provide a concise summary (maximum 200 words) of the overall relationship dynamics from the perspective of the person that has the relationship with ${relationship.name}. 
     Consider the balance between positive and negative behaviors, giving appropriate weight to each trait. 
     Ensure your summary accurately reflects whether the relationship is predominantly positive, negative, or mixed based on the scores.
     Remember these trait scores are sum values of negative and positive behaviors that were done by the user towards the person in relationship.
@@ -229,7 +229,7 @@ export async function formatRelationship(relationship: Relationship): Promise<{ 
     Summary: [Your 100-word analysis]
     Emoji: [Selected emoji]
 
-    Analyze the relationship with ${relationship.name} based on the following aggregated personality trait scores:
+    Analyze the relationship with ${relationship.name}, factor the relationship type is ${relationship?.type ?? 'Friendship'}, and based on the following aggregated personality trait scores:
     ${relationship.metadata.traitScores}
     `;
     let result = await model.generateContent(prompt)

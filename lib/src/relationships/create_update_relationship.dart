@@ -175,7 +175,7 @@ class _CreateUpdateRelationshipState extends State<CreateUpdateRelationship> {
             ),
             const SizedBox(height: 24),
             const Text(
-                "Any names of individuals mentioned in your diary entries will be automatically linked to this relationship. If a relationship for a mentioned person doesn't exist, it will be created. For existing relationships, the diary entry's sentiment will be associated with that relationship.",
+                "Any names of individuals mentioned in your behavior entries will be automatically linked to this relationship. If a relationship for a mentioned person doesn't exist, it will be created. For existing relationships, the diary entry's sentiment will be associated with that relationship.",
                 style: TextStyle(fontSize: 16)),
             const SizedBox(height: 24),
             const SizedBox(height: 16),
