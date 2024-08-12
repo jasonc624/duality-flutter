@@ -172,7 +172,7 @@ class ProfilesNotifier extends StateNotifier<ProfilesState> {
       state = state.copyWith(profile: null, isLoading: false);
     } catch (e) {
       state = state.copyWith(error: e.toString(), isLoading: false);
-      print('Error loading profile: $e');
+      // print('Error loading profile: $e');
     }
   }
 
@@ -185,15 +185,13 @@ class ProfilesNotifier extends StateNotifier<ProfilesState> {
           .get();
       final profiles = querySnapshot.docs.map((doc) {
         final profile = Profile.fromFirebase(doc, doc.id);
-        print(
-            'Profile loaded: ${profile.name}, ID: ${profile.id}, IsDefault: ${profile.isDefault}');
         return profile;
       }).toList();
 
       state = ProfilesState(profile: state.profile, profiles: profiles);
     } catch (e) {
       // Handle error
-      print('Error loading all profiles: $e');
+      // print('Error loading all profiles: $e');
     }
   }
 
@@ -233,7 +231,7 @@ class ProfilesNotifier extends StateNotifier<ProfilesState> {
         isLoading: false,
         error: 'Error creating profile: $e',
       );
-      print('Error creating profile: $e');
+      // print('Error creating profile: $e');
     }
   }
 
@@ -263,7 +261,7 @@ class ProfilesNotifier extends StateNotifier<ProfilesState> {
         isLoading: false,
         error: 'Error updating profile: $e',
       );
-      print('Error updating profile: $e');
+      // print('Error updating profile: $e');
     }
   }
 

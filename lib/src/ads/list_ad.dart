@@ -61,7 +61,6 @@ class _ListAdWidgetState extends State<ListAdWidget> {
   @override
   Widget build(BuildContext context) {
     if (_isAdLoaded && _bannerAd != null) {
-      print('Adheight ${_bannerAd!.size.width}');
       return Container(
         color: Colors.deepPurple.shade100,
         alignment: Alignment.center,

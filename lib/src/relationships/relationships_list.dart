@@ -24,7 +24,7 @@ class RelationshipsPage extends StatelessWidget {
       body: StreamBuilder<List<Relationship>>(
         stream: _repository.getRelationships(),
         builder: (context, snapshot) {
-          print('builder snapshot:${snapshot.data}');
+          // print('builder snapshot:${snapshot.data}');
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
@@ -32,7 +32,7 @@ class RelationshipsPage extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
-          print('builder ?${snapshot.data}');
+          // print('builder ?${snapshot.data}');
 
           final relationships = snapshot.data ?? [];
 

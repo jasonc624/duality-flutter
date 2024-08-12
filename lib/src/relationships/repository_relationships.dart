@@ -61,8 +61,8 @@ class RelationshipRepository {
     try {
       await _getRelationshipsCollection().doc(relationshipId).delete();
     } catch (e) {
-      print('Error deleting relationship: $e');
-      throw e;
+      // print('Error deleting relationship: $e');
+      rethrow;
     }
   }
 

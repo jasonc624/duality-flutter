@@ -39,7 +39,6 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
     try {
       await FirebaseAuth.instance.signOut();
 
-      // print('User logged out successfully');
       setState(() {});
       Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (context) => const LoginScreen(),

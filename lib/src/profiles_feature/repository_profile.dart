@@ -24,7 +24,6 @@ class ProfileRepository {
           .map((doc) => Profile.fromFirebase(doc, doc.id))
           .toList();
     } catch (e) {
-      print('Error fetching profiles: $e');
       rethrow;
     }
   }
@@ -43,7 +42,6 @@ class ProfileRepository {
 
       return newProfile;
     } catch (e) {
-      print('Error adding profile: $e');
       rethrow;
     }
   }
@@ -53,7 +51,7 @@ class ProfileRepository {
     try {
       await _profilesCollection.doc(profile.id).update(profile.toFirebase());
     } catch (e) {
-      print('Error updating profile: $e');
+      // print('Error updating profile: $e');
       rethrow;
     }
   }
@@ -63,7 +61,7 @@ class ProfileRepository {
     try {
       await _profilesCollection.doc(profileId).delete();
     } catch (e) {
-      print('Error deleting profile: $e');
+      // print('Error deleting profile: $e');
       rethrow;
     }
   }
@@ -86,7 +84,7 @@ class ProfileRepository {
       // Commit the batch
       await batch.commit();
     } catch (e) {
-      print('Error setting default profile: $e');
+      // print('Error setting default profile: $e');
       rethrow;
     }
   }
