@@ -1,4 +1,8 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import '../ads/list_ad.dart';
 import '../behavior_entry_feature/behavior_list.dart';
 import '../behavior_entry_feature/behavior_list_charts.dart';
 import '../behavior_entry_feature/create_update_behavior.dart';
@@ -13,7 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MyHomePage extends ConsumerStatefulWidget {
   const MyHomePage({super.key});
-
+  static const list_ad_unit_id = 'ca-app-pub-7953505687288854/2493891961';
   static const routeName = '/home';
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -28,6 +32,8 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
       ref.read(profilesProvider.notifier).loadAllProfiles();
     });
   }
+
+  BannerAd? _bannerAd;
 
   Future<void> logout() async {
     try {
@@ -93,7 +99,7 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('Polarity'),
+        title: const Text('Polarity'),
       ),
       drawer: SideNavigation(
         firebaseUser: firebaseUser,
@@ -106,7 +112,13 @@ class _MyHomePageState extends ConsumerState<MyHomePage> {
             const CustomBackgroundExample(),
             const SizedBox(height: 16.0),
             BehaviorAnalysisPieCharts(userRef: currentUserUid),
-            const SizedBox(height: 16.0),
+            const SizedBox(height: 8.0),
+            const SafeArea(
+              child: ListAdWidget(
+                adUnitId: 'test',
+                adSize: AdSize.banner,
+              ),
+            ),
             BehaviorListView(userRef: currentUserUid),
           ],
         ),

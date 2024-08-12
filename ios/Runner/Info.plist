@@ -49,5 +49,8 @@
 	<string>This application uses speech recognition to convert your speech to text</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This application needs to access your microphone</string>
+	<key>GADApplicationIdentifier</key>
+	<!-- Live: ca-app-pub-7953505687288854~5535886060 -->
+	<string>ca-app-pub-3940256099942544~3347511713</string>
 </dict>
 </plist>
