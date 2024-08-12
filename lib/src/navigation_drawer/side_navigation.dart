@@ -1,10 +1,9 @@
-import 'package:duality/src/home/home.dart';
-import 'package:duality/src/profiles_feature/profiles_view.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../home/home.dart';
 import '../profiles_feature/profile_list_widget.dart';
+import '../profiles_feature/profiles_view.dart';
 import '../relationships/relationships_list.dart';
 import '../reports_feature/week_list.dart';
 import '../settings/settings_view.dart';

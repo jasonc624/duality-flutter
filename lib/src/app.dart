@@ -1,14 +1,14 @@
-import 'package:duality/src/login_page/login_page.dart';
-import 'package:duality/src/profiles_feature/profiles_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'home/home.dart';
+import 'login_page/login_page.dart';
+import 'profiles_feature/profiles_view.dart';
 import 'relationships/relationships_list.dart';
 import 'reports_feature/week_list.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
-import 'package:duality/src/home/home.dart';
 
 //FIrebase
 import 'package:firebase_auth/firebase_auth.dart';
@@ -96,7 +96,7 @@ class MyApp extends StatelessWidget {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
                   default:
-                    return MyHomePage();
+                    return const MyHomePage();
                 }
               },
             );

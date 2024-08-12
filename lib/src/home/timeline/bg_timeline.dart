@@ -1,7 +1,8 @@
-import 'package:duality/src/providers/uiState.dart';
 import 'package:easy_date_timeline/easy_date_timeline.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../providers/uiState.dart';
 
 class CustomBackgroundExample extends ConsumerWidget {
   const CustomBackgroundExample({

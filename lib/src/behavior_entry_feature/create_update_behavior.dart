@@ -1,6 +1,6 @@
-import 'package:duality/src/home/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../home/home.dart';
 import '../providers/profileState.dart';
 import 'behavior_entry_model.dart';
 import 'repository_behavior.dart';

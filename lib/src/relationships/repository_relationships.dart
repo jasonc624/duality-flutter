@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:duality/src/relationships/relationship_model.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
+
+import 'relationship_model.dart';
 
 class RelationshipRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

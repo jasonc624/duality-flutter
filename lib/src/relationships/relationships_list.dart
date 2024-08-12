@@ -1,7 +1,7 @@
-import 'package:duality/src/login_page/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../login_page/login_page.dart';
 import 'relationship_model.dart';
 import 'relationship_view.dart';
 import 'repository_relationships.dart';

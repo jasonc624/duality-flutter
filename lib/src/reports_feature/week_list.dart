@@ -1,5 +1,6 @@
-import 'package:duality/src/reports_feature/week.dart';
 import 'package:flutter/material.dart';
+
+import 'week.dart';
 
 class WeeksList extends StatelessWidget {
   final int weeksInYear = 52;
