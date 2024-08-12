@@ -25,11 +25,12 @@ class _CreateUpdateRelationshipState extends State<CreateUpdateRelationship> {
 
   String _type = 'Friendship'; // Default type
   final List<String> _typeOptions = [
+    'Community',
     'Family',
     'Romantic',
     'Friendship',
+    'Pet',
     'Professional',
-    'Community',
     'Other'
   ];
 
