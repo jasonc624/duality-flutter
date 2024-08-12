@@ -71,6 +71,26 @@ export async function formatBehavior(behavior: Behavior): Promise<[]> {
                                 }
                             }
                         },
+                        environmental: {
+                            type: FunctionDeclarationSchemaType.ARRAY,
+                            items: {
+                                type: FunctionDeclarationSchemaType.OBJECT,
+                                properties: {
+                                    description: {
+                                        type: FunctionDeclarationSchemaType.STRING,
+                                    },
+                                    name: {
+                                        type: FunctionDeclarationSchemaType.STRING,
+                                    },
+                                    reason: {
+                                        type: FunctionDeclarationSchemaType.STRING,
+                                    },
+                                    score: {
+                                        type: FunctionDeclarationSchemaType.NUMBER,
+                                    },
+                                }
+                            }
+                        },
                         suggestion: {
                             type: FunctionDeclarationSchemaType.STRING,
                         },
@@ -165,6 +185,20 @@ export async function formatBehavior(behavior: Behavior): Promise<[]> {
             Avoidant Personality Disorder
             Dependent Personality Disorder
             Obsessive-Compulsive Personality Disorder
+    6. Sometimes a behavior can be suggestive of an environmental factor. For this give a score from 1 - 5 if it meets any of these environmental factors:
+        a) Cluster A (Odd or Eccentric Factors)
+            Climate Change
+            Ecological Factors
+            Geographic Factors
+            Human Factors
+            Political Factors
+        b) Cluster B (Dramatic, Emotional, or Erratic Factors)
+            Cultural Factors
+            Economic Factors
+            Social Factors
+        c) Cluster C (Anxious or Fearful Factors)
+            Biological Factors
+            Psychological Factors
     `;
     let result = await model.generateContent(prompt)
     functions.logger.log("Format Behavior Result:", result.response.text());

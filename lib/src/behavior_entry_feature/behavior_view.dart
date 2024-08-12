@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../charts/radar.dart';
-import '../providers/speechState.dart';
 import '../speech_widget/tts.dart';
 import '../traits/trait_score_view.dart';
 import 'behavior_entry_model.dart';
@@ -27,7 +25,7 @@ class _BehaviorViewState extends State<BehaviorView>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -61,6 +59,7 @@ class _BehaviorViewState extends State<BehaviorView>
             tabs: const [
               Tab(text: 'Explanation'),
               Tab(text: 'Visualize'),
+              Tab(text: 'Environmental'),
               Tab(text: 'Disorders'),
             ],
           ),
@@ -74,6 +73,7 @@ class _BehaviorViewState extends State<BehaviorView>
                 children: [
                   _buildTraitScoresTab(),
                   _buildRadarChartTab(),
+                  _buildEnvironmentalTab(),
                   _buildDisordersTab(),
                 ],
               ),
@@ -82,18 +82,36 @@ class _BehaviorViewState extends State<BehaviorView>
         ));
   }
 
-  Widget _buildDisordersTab() {
+  Widget _buildEnvironmentalTab() {
     if (widget.behaviorEntry == null ||
-        widget.behaviorEntry!.disorders == null) {
-      return const Center(child: Text('No connection to a disorder found.'));
+        widget.behaviorEntry!.environmental == null) {
+      return const Center(
+          child: Text('No connection to an environmental factor found.'));
     }
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
       child: Column(
-        children: widget.behaviorEntry!.disorders!
-            .map((disorder) => _buildDisorderEntry(disorder))
+        children: widget.behaviorEntry!.environmental!
+            .map((envi) => _buildEnvironmentalEntry(envi))
             .toList(),
       ),
+    );
+  }
+
+  Widget _buildEnvironmentalEntry(dynamic environmental) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          environmental.name,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Text(environmental.reason),
+        const SizedBox(height: 8),
+        Text('Score: ${environmental.score}'),
+        const Divider(height: 30, thickness: 1),
+      ],
     );
   }
 
@@ -111,6 +129,22 @@ class _BehaviorViewState extends State<BehaviorView>
         Text('Score: ${disorder.score}'),
         const Divider(height: 30, thickness: 1),
       ],
+    );
+  }
+
+  Widget _buildDisordersTab() {
+    if (widget.behaviorEntry == null ||
+        widget.behaviorEntry!.disorders == null) {
+      return const Center(
+          child: Text('This behavior attributed no disorders.'));
+    }
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
+      child: Column(
+        children: widget.behaviorEntry!.disorders!
+            .map((disorder) => _buildDisorderEntry(disorder))
+            .toList(),
+      ),
     );
   }
 

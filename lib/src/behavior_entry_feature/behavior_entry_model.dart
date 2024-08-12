@@ -15,6 +15,7 @@ class BehaviorEntry {
     this.suggestion,
     this.overall_score,
     this.disorders,
+    this.environmental,
   })  : created = created ?? DateTime.now(),
         updated = updated ?? DateTime.now();
 
@@ -29,8 +30,9 @@ class BehaviorEntry {
   final DateTime updated;
   final bool? isPublic;
   final String? suggestion;
-  final num? overall_score; // Changed to num to allow both int and double
+  final num? overall_score;
   final List<Disorder>? disorders;
+  final List<Environmental>? environmental;
 
   factory BehaviorEntry.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
@@ -48,9 +50,12 @@ class BehaviorEntry {
       created: (data['created'] as Timestamp?)?.toDate(),
       updated: (data['updated'] as Timestamp?)?.toDate(),
       suggestion: data['suggestion'] as String?,
-      overall_score: data['overall_score'] as num?, // Changed to num
+      overall_score: data['overall_score'] as num?,
       disorders: (data['disorders'] as List<dynamic>?)
           ?.map((e) => Disorder.fromMap(e as Map<String, dynamic>))
+          .toList(),
+      environmental: (data['environmental'] as List<dynamic>?)
+          ?.map((e) => Environmental.fromMap(e as Map<String, dynamic>))
           .toList(),
     );
   }
@@ -77,6 +82,10 @@ class BehaviorEntry {
       data['disorders'] = disorders!.map((d) => d.toMap()).toList();
     }
 
+    if (environmental != null) {
+      data['environmental'] = environmental!.map((e) => e.toMap()).toList();
+    }
+
     return data;
   }
 
@@ -92,8 +101,9 @@ class BehaviorEntry {
     DateTime? updated,
     bool? isPublic,
     String? suggestion,
-    num? overall_score, // Changed to num
+    num? overall_score,
     List<Disorder>? disorders,
+    List<Environmental>? environmental,
   }) {
     return BehaviorEntry(
       id: id ?? this.id,
@@ -109,6 +119,7 @@ class BehaviorEntry {
       suggestion: suggestion ?? this.suggestion,
       overall_score: overall_score ?? this.overall_score,
       disorders: disorders ?? this.disorders,
+      environmental: environmental ?? this.environmental,
     );
   }
 
@@ -132,6 +143,32 @@ class Disorder {
 
   factory Disorder.fromMap(Map<String, dynamic> map) {
     return Disorder(
+      name: map['name'] as String,
+      reason: map['reason'] as String,
+      score: map['score'] as int,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'reason': reason,
+      'score': score,
+    };
+  }
+}
+
+// New Environmental class
+class Environmental {
+  final String name;
+  final String reason;
+  final int score;
+
+  Environmental(
+      {required this.name, required this.reason, required this.score});
+
+  factory Environmental.fromMap(Map<String, dynamic> map) {
+    return Environmental(
       name: map['name'] as String,
       reason: map['reason'] as String,
       score: map['score'] as int,

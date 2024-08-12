@@ -19,6 +19,8 @@ export async function updateBehavior(id: string, data: any) {
     }
     let onlyTraitData = structuredClone(data);
     let onlyDisorders = structuredClone(onlyTraitData.disorders);
+    let onlyEnvironmental = structuredClone(onlyTraitData.environmental);
+    delete onlyTraitData.environmental;
     delete onlyTraitData.disorders;
     delete onlyTraitData.title;
     delete onlyTraitData.updated;
@@ -39,7 +41,8 @@ export async function updateBehavior(id: string, data: any) {
         overall_score: data?.overall_score,
         updated: Timestamp.now(),
         traitScores: { ...onlyTraitData },
-        disorders: onlyDisorders
+        disorders: onlyDisorders,
+        environmental: onlyEnvironmental
     };
     await db.collection('behaviors').doc(id).update(flattenedData, { merge: true });
     return flattenedData;
