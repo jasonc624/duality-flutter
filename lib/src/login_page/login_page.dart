@@ -96,79 +96,137 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_isRegistration ? 'Sign Up' : 'Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (_isRegistration)
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                      labelText: 'Name',
-                      border: OutlineInputBorder(),
-                      hintText: "Full name or just your first"),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your name';
-                    }
-                    return null;
-                  },
-                ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-              _isLoading
-                  ? const CircularProgressIndicator()
-                  : Column(
-                      children: [
-                        ElevatedButton(
-                          onPressed: _submitForm,
-                          child: Text(_isRegistration ? 'Sign Up' : 'Login'),
+        appBar: AppBar(title: Text(_isRegistration ? 'Sign Up' : 'Login')),
+        body: Container(
+          color: Colors.deepPurple,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 50),
+                  Image.asset(
+                    'assets/images/logo_white.png',
+                    height: 175,
+                    width: 175,
+                  ),
+                  const SizedBox(height: 30),
+                  if (_isRegistration)
+                    TextFormField(
+                      controller: _nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Name',
+                        border: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white)),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Colors
+                                  .white), // White border when not focused
                         ),
-                        TextButton(
-                          onPressed: _toggleMode,
-                          child: Text(_isRegistration
-                              ? 'Already have an account? Login'
-                              : 'Don\'t have an account? Sign Up'),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Colors.white,
+                              width: 2), // White thicker border when focused
                         ),
-                      ],
+                        filled: true,
+                        fillColor: Colors.transparent,
+                        labelStyle: TextStyle(color: Colors.white),
+                        hintStyle: TextStyle(color: Colors.white70),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your name';
+                        }
+                        return null;
+                      },
+                      style: TextStyle(color: Colors.white),
                     ),
-            ],
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white)),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color:
+                                Colors.white), // White border when not focused
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white, width: 2),
+                      ),
+                      filled: true,
+                      fillColor: Colors.transparent,
+                      labelStyle: TextStyle(color: Colors.white),
+                      hintStyle: TextStyle(color: Colors.white70),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      return null;
+                    },
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: const InputDecoration(
+                      labelText: 'Password',
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white)),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color:
+                                Colors.white), // White border when not focused
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: Colors.white,
+                            width: 2), // White thicker border when focused
+                      ),
+                      filled: true,
+                      fillColor: Colors.transparent,
+                      labelStyle: TextStyle(color: Colors.white),
+                      hintStyle: TextStyle(color: Colors.white70),
+                    ),
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  _isLoading
+                      ? const CircularProgressIndicator()
+                      : Column(
+                          children: [
+                            ElevatedButton(
+                              onPressed: _submitForm,
+                              child:
+                                  Text(_isRegistration ? 'Sign Up' : 'Login'),
+                            ),
+                            TextButton(
+                              onPressed: _toggleMode,
+                              child: Text(
+                                _isRegistration
+                                    ? 'Already have an account? Login'
+                                    : 'Don\'t have an account? Sign Up',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   @override
